@@ -1,0 +1,124 @@
+#Idea from this page, edited by Jonathan Canossa.
+#https://www.geeksforgeeks.org/automate-instagram-messages-using-python/
+#Other useful links:
+#https://selenium-python.readthedocs.io/getting-started.html#simple-usage
+#https://www.browserstack.com/guide/find-element-by-xpath-in-selenium
+#Create a class to call the class only at the end
+# importing module
+from selenium import webdriver #"Browser controller"
+import time #to use sleep function
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait #Support classes
+from selenium.webdriver.support import expected_conditions # .presence_of_element_located --> returns the WebElement once it is located
+from selenium.webdriver.common.keys import Keys #A lot of Keys in the keyboard
+
+#Create a chrome object.
+#webdriver.Chrome(executable_path='C:/path/to/chromedriver.exe')  #For a chromedriver that's not in the same file.
+driver = webdriver.Chrome()
+  
+class bot:
+    def __init__(self, username, password, message):
+        self.username = username
+        self.password = password
+        self.base_url = 'https://www.instagram.com/'
+        self.bot = driver
+        self.login()
+        self.read()
+        self.write()
+        
+    def login(self):#------------------Instructions to login and access to the Instagram DMs-------------
+        self.bot.get(self.base_url) #driver.get("url") will navigate to a page given by the URL
+  
+        enter_username = WebDriverWait(self.bot, 20).until(
+            expected_conditions.presence_of_element_located((By.NAME, 'username'))) #until gap username shows.
+        enter_username.clear() #clear any default text
+        enter_username.send_keys(self.username)
+
+        enter_password = WebDriverWait(self.bot, 20).until(
+            expected_conditions.presence_of_element_located((By.NAME, 'password')))
+        enter_password.clear()
+        enter_password.send_keys(self.password)
+        enter_password.send_keys(Keys.RETURN) #or Keys.ENTER
+        time.sleep(5)
+        
+        #https://selenium-python.readthedocs.io/locating-elements.html (locate elements through inspect)
+        # first pop-up 
+        self.bot.find_element_by_xpath(
+            '//*[@id="react-root"]/section/main/div/div/div/div/button').click()
+        time.sleep(3)
+  
+        # 2nd pop-up
+        self.bot.find_element_by_xpath(
+            '//div[@class="mt3GC"]/button[2]').click() ##Xpath fixed
+        time.sleep(4)
+  
+        # direct button
+        self.bot.find_element_by_xpath(
+            '//a[@class="xWeGp"]').click() #Xpath fixed
+        time.sleep(3)
+    
+    def read(self):#----------------Instructions to read-------------------------------------
+    #click a conversation with a blue circle (New message received)
+        #This loop is basically checking for a new message until it gets one.
+        while True: 
+            try:
+                self.bot.find_element_by_xpath(
+                    '//div[@class=" _41V_T   Sapc9                 Igw0E     IwRSH      eGOV_         _4EzTm                                                                                                              "]').click()
+            #if no error is catched, the following 3 lines run:
+                #store the username
+                #self.user = self.bot.find_element_by_xpath('//div[@class="_7UhW9    vy6Bb      qyrsm KV-D4              fDxYl     "]').text 
+                print("New message was received.")
+                break
+            except: #try will go to except if the new message is not found.
+                print("No new messages.")
+                time.sleep(3)
+        
+        path = '(//div[@class=" e9_tN JRTzd"]/div/div/div/div/div/div/span)[1]' #new message text path
+        client_input = [] #list of messages
+        flag = 1 #more messages in queue flag
+        num = 1 #variable that changes to keep looking for another message
+        
+        while flag:#This loop will store messages until it doesn't find any other message
+            try:#searches for messages until the end of the conversation. 
+                client_input.append(self.bot.find_element_by_xpath(path).text) 
+                x = str([num])
+                y = str([num+1])
+                path = path.replace(x,y) #changes the path to the next message tag
+                num += 1 
+                #time.sleep(3) # I don't really think this needs a sleeping time. 
+            except: #if there is an error finding the next path, it means there aren't any new text messages available.
+                flag = 0
+                print("all messages were read.")
+        
+        #Store the very last message in text file.
+        user_input = open("client_msg.txt","w")
+        user_input.write(client_input[-1]) 
+        user_input.close()
+                
+    def write(self):#-----------------Instructions to write----------------------------------------
+        #write whats on the ouput text file as soon as it is filled with a reply provided by the C program. 
+        output_msg = open("output_msg.txt","r")
+        reply = output_msg.read()
+        
+        while (reply == ''): #Wait until the output textfile is filled by the C program.
+            print("waiting for the bot to reply...")
+            time.sleep(1)
+            output_msg.seek(0) #set reading back at the top of the text file.
+            reply = output_msg.read()
+        
+        self.message = reply #Once it gets out of the loop store it as the message.
+  
+        # select message area
+        send = self.bot.find_element_by_xpath(
+            '/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea')
+  
+        # types message
+        send.send_keys(self.message)
+        time.sleep(1)
+  
+        # send message
+        send.send_keys(Keys.RETURN)
+        time.sleep(1)
+
+project = bot('compsci.exe', 'finalproject', message)
+#driver.quit() #Future change: use this inside the class
