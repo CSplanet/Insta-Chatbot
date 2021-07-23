@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define SIZE 100
+
+int read_sentence(FILE *input, char message[SIZE]);
+
+//enums are categories
+int main(void)
+{
+	FILE *input;
+    char sentence[SIZE];//either sentence or word
+    char words[SIZE][SIZE];
+    
+    read_sentence(input, sentence);
+    //idea
+    //category = find_sentence_category(string);
+    
+    //read_word
+    //category = find_word_category(string);
+    
+    printf("%s\n", sentence);
+
+	return 0;
+}
+
+int read_sentence(FILE *input, char message[SIZE])
+{
+    char line[SIZE];
+    int i, countl = 0;//helper, count line
+    char *sts;//status: pointer to line string if succesful, else NULL
+    
+    input = fopen("client_msg.txt","r");
+    
+    if (input == NULL)
+    {
+        printf("Couldn't open file");
+        return -1;
+    }
+    
+    sts = fgets(line, SIZE, input);//extract the whole sentence out of the file
+
+    while (sts != NULL)
+    {
+        countl++;
+        if (line[strlen(line) - 1] == '\n') 
+       {
+            line[strlen(line) - 1] = ' ';
+       }
+       
+       //first line will be stored within the message string
+       if (countl == 1)
+       {
+           strcpy(message, line);
+       }
+       else//else, concatenate to message
+       {
+            strcat(message, line);
+       }
+       
+       sts = fgets(line,SIZE,input);
+    }
+    
+    return 0;//return string
+}
+
+int read_word(char message[SIZE], char words[SIZE][SIZE])//pass the list head
+{//Use recursion here:base case is the \0 after the word
+//delete punctuation from words
+    int i;//helper
+    
+    for (i=0; i < strlen(message); i++)
+    {
+        /*
+        switch(message[i])
+        {
+            case ".":
+            case ",":
+            case ":":
+            case "!":
+            case "?":
+            case " ":
+            //no guarde nada
+            break;
+            default:
+            
+            
+        }
+         */ 
+        if (message[i] >= 'a' and message[i]<= 'z')
+        {
+        //guarde    
+        }
+        else if ()//!!! TERMINAR
+        {
+        //termine palabra si la palabra tiene una letra
+        }
+    }
+}
+
+//Get order (this should be a category) function to store info in a CSV file
+
+//show menu de opciones (show menu, order food: store in a CSV file for all the info, QA with the bot). returns the option chosen.
+
+//find_sentence_category(string); (categorization)
+//find_word_category(word);--> helpers are the delete stop words, find root, tokenization
+
+//reply sentence based on category
+//reply word based on category
+
+//store the reply to a txt.file
