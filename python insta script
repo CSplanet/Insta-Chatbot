@@ -21,7 +21,8 @@ class bot:
         self.username = username
         self.password = password
         self.base_url = 'https://www.instagram.com/'
-        self.bot = driver
+        self.bot = driver 
+	self.count = 1
         self.login()
         self.read()
         self.write()
@@ -99,6 +100,8 @@ class bot:
         #write whats on the ouput text file as soon as it is filled with a reply provided by the C program. 
         output_msg = open("output_msg.txt","r")
         reply = output_msg.read()
+	if(self.count == 1):
+		#option menu
         
         while (reply == ''): #Wait until the output textfile is filled by the C program.
             print("waiting for the bot to reply...")
