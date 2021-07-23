@@ -4,6 +4,8 @@
 #define SIZE 100
 
 int read_sentence(FILE *input, char message[SIZE]);
+void read_word(char sentence[SIZE], char words[SIZE][SIZE]);
+
 
 //enums are categories
 int main(void)
@@ -11,12 +13,18 @@ int main(void)
 	FILE *input;
     char sentence[SIZE];//either sentence or word
     char words[SIZE][SIZE];
+    int n;
     
     read_sentence(input, sentence);
     //idea
     //category = find_sentence_category(string);
     
     //read_word
+    read_word(sentence,words);
+    for (n=0; n<dst_word_idx; n++)
+	{
+		printf("%d: %s\n", n, word[n]);
+	}
     //category = find_word_category(string);
     
     printf("%s\n", sentence);
@@ -64,46 +72,87 @@ int read_sentence(FILE *input, char message[SIZE])
     return 0;//return string
 }
 
-int read_word(char message[SIZE], char words[SIZE][SIZE])//pass the list head
-{//Use recursion here:base case is the \0 after the word
-//delete punctuation from words
-    int i;//helper
-    
-    for (i=0; i < strlen(message); i++)
-    {
-        /*
-        switch(message[i])
-        {
-            case ".":
-            case ",":
-            case ":":
-            case "!":
-            case "?":
-            case " ":
-            //no guarde nada
-            break;
-            default:
-            
-            
-        }
-         */ 
-        if (message[i] >= 'a' and message[i]<= 'z')
-        {
-        //guarde    
-        }
-        else if ()//!!! TERMINAR
-        {
-        //termine palabra si la palabra tiene una letra
-        }
-    }
+void read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from string lecture modified by William.
+{
+	char typed_letter;
+	int is_space_or_punctuation;
+	int in_word;
+	int dst_letter_idx;
+	int dst_word_idx;
+	int i;
+	
+	in_word = 0;
+	dst_word_idx = 0;
+	dst_letter_idx = 0;
+	for (i = 0; i < strlen(str); i++)
+	{
+		/* Get a letter */
+		typed_letter = sentence[i];
+		
+		/* Check if it is a space or punctuation */
+		is_space_or_punctuation = (typed_letter == ' ' || typed_letter == ',' || typed_letter == '.' || typed_letter == '\n' || typed_letter == '!' || typed_letter == '?');
+		
+		if (!in_word)
+		{
+			/* We are searching for the word beginning */
+			if (!is_space_or_punctuation)
+			{
+				/* Found the beginning of a word */
+				/* Copy the letter */
+				words[dst_word_idx][dst_letter_idx] = typed_letter;
+				dst_letter_idx++;
+				
+				in_word = 1;
+			}
+		}
+		else
+		{
+			/* We are in the middle of a word */
+			
+			if (!is_space_or_punctuation)
+			{
+				/* Copy the letter, but only if it fits */
+				if (dst_letter_idx < (SIZE-1) )
+				{
+					words[dst_word_idx][dst_letter_idx] = typed_letter;
+					dst_letter_idx++;
+				}
+			}
+			else
+			{
+				/* This is the end of the word */
+				
+				/* Terminate the string for the current word */
+				words[dst_word_idx][dst_letter_idx] = '\0';
+				
+				/* Move to the next word index */
+				dst_word_idx++;
+				dst_letter_idx = 0;
+				if (dst_word_idx == SIZE)
+				{
+					/* No space for more words */
+					break;
+				}
+				
+				/* Start search mode */
+				in_word = 0;
+			}
+		}	
+	}
 }
+
+
+
+
+
+
 
 //Get order (this should be a category) function to store info in a CSV file
 
 //show menu de opciones (show menu, order food: store in a CSV file for all the info, QA with the bot). returns the option chosen.
 
 //find_sentence_category(string); (categorization)
-//find_word_category(word);--> helpers are the delete stop words, find root, tokenization
+//find_word_category(word);--> helpers are the delete stop words, find root, read word.
 
 //reply sentence based on category
 //reply word based on category
