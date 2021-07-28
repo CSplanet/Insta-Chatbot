@@ -3,23 +3,21 @@
 #include <string.h>
 #define SIZE 100
 
-int read_sentence(FILE *input, char message[SIZE]);
+int read_sentence(char message[SIZE]);
 void read_word(char sentence[SIZE], char words[SIZE][SIZE]);
 
+//enums are categories!!
 
-//enums are categories
 int main(void)
 {
-	FILE *input;
     char sentence[SIZE];//either sentence or word
     char words[SIZE][SIZE];
     int n;
     
-    read_sentence(input, sentence);
-    //idea
-    //category = find_sentence_category(string);
+    read_sentence(sentence);
+    //idea: category = find_sentence_category(string);
     
-    //read_word
+    //take word by word from the sentence if the sentence is not registered
     read_word(sentence,words);
     for (n=0; n<dst_word_idx; n++)
 	{
@@ -32,8 +30,9 @@ int main(void)
 	return 0;
 }
 
-int read_sentence(FILE *input, char message[SIZE])
+int read_sentence(char message[SIZE])
 {
+    FILE *input
     char line[SIZE];
     int i, countl = 0;//helper, count line
     char *sts;//status: pointer to line string if succesful, else NULL
@@ -69,7 +68,8 @@ int read_sentence(FILE *input, char message[SIZE])
        sts = fgets(line,SIZE,input);
     }
     
-    return 0;//return string
+    //Remember to delete the input from the file after it was read!
+    return 0;
 }
 
 void read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from string lecture modified by William.
@@ -149,6 +149,7 @@ void read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from str
 
 //Get order (this should be a category) function to store info in a CSV file
 
+//jona
 //show menu de opciones (show menu, order food: store in a CSV file for all the info, QA with the bot). returns the option chosen.
 
 //find_sentence_category(string); (categorization)
@@ -157,4 +158,19 @@ void read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from str
 //reply sentence based on category
 //reply word based on category
 
-//store the reply to a txt.file
+//Sends the message so the python script can send it (we originally called it store_reply)
+int send_reply(char reply[SIZE])
+{
+    FILE *output;
+    output = fopen("client_msg.txt","w");
+    
+    if (output == NULL)
+    {
+        printf("Couldn't open file");
+        return -1;
+    }
+    
+    fprintf(output, "%s", reply);
+    
+    fclose(output);
+}
