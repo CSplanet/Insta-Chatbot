@@ -4,35 +4,51 @@
 #define SIZE 100
 
 int read_sentence(char message[SIZE]);
-void read_word(char sentence[SIZE], char words[SIZE][SIZE]);
-
+int read_word(char sentence[SIZE], char words[SIZE][SIZE]);
+int show_options(char reply[SIZE]);
+int send_reply(char reply[SIZE]);
 //enums are categories!!
 
 int main(void)
 {
     char sentence[SIZE];//either sentence or word
     char words[SIZE][SIZE];
-    int n;
+    int n, wcount; //count of the number of words stored in words[SIZE][SIZE]
+    //Maybe include msg count? to know what to do at which time.
     
     read_sentence(sentence);
+    printf("%s\n", sentence);
     //idea: category = find_sentence_category(string);
     
     //take word by word from the sentence if the sentence is not registered
-    read_word(sentence,words);
-    for (n=0; n<dst_word_idx; n++)
+    wcount = read_word(sentence, words);
+    for (n=0; n < wcount; n++)
 	{
-		printf("%d: %s\n", n, word[n]);
+		printf("%d: %s\n", n, words[n]);
 	}
     //category = find_word_category(string);
     
-    printf("%s\n", sentence);
+    
+    /*Part to include the logic behind the replies (botsillo)
+     * 
+     * 
+     * 
+     * */
+    
+    //Reply Test
+    //Reuse the same sentence string for the reply
+    strcpy(sentence,"Test message, this will be sent to instagram btw.");
+    send_reply(sentence);
+    
+    //Show options test:
+    show_options(sentence);
 
 	return 0;
 }
 
 int read_sentence(char message[SIZE])
 {
-    FILE *input
+    FILE *input;//Jona: put the file inside the function
     char line[SIZE];
     int i, countl = 0;//helper, count line
     char *sts;//status: pointer to line string if succesful, else NULL
@@ -68,11 +84,11 @@ int read_sentence(char message[SIZE])
        sts = fgets(line,SIZE,input);
     }
     
-    //Remember to delete the input from the file after it was read!
+    //Jonathan: Remember to delete the input from the file after it was read! Not done yet
     return 0;
 }
 
-void read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from string lecture modified by William.
+int read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from string lecture modified by William.
 {
 	char typed_letter;
 	int is_space_or_punctuation;
@@ -84,7 +100,8 @@ void read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from str
 	in_word = 0;
 	dst_word_idx = 0;
 	dst_letter_idx = 0;
-	for (i = 0; i < strlen(str); i++)
+    
+	for (i = 0; i < strlen(sentence); i++)
 	{
 		/* Get a letter */
 		typed_letter = sentence[i];
@@ -139,18 +156,21 @@ void read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from str
 			}
 		}	
 	}
+    //Jonathan: it returns the number of words found
+    return dst_word_idx+1;
 }
 
+//Get order (this should be a category) function to store info in a CSV file (William)
 
-
-
-
-
-
-//Get order (this should be a category) function to store info in a CSV file
-
-//jona
-//show menu de opciones (show menu, order food: store in a CSV file for all the info, QA with the bot). returns the option chosen.
+//show menu de opciones (show menu, order food: store in a CSV file for all the info, QA with the bot).
+int show_options(char reply[SIZE])
+{
+    //Se puede modificar luego
+    strcpy(reply, "Hello! to see our menu enter A, to order enter B, for bot assistance enter C");
+    send_reply(reply);
+    
+    return 0;
+}
 
 //find_sentence_category(string); (categorization)
 //find_word_category(word);--> helpers are the delete stop words, find root, read word.
@@ -173,4 +193,7 @@ int send_reply(char reply[SIZE])
     fprintf(output, "%s", reply);
     
     fclose(output);
+    
+    return 0;
 }
+
