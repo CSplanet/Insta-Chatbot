@@ -162,7 +162,7 @@ void read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from str
 int send_reply(char reply[SIZE])
 {
     FILE *output;
-    output = fopen("client_msg.txt","w");
+    output = fopen("output_msg.txt","w");
     
     if (output == NULL)
     {
