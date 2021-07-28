@@ -1,4 +1,3 @@
-#Idea from this page, edited by Jonathan Canossa.
 #https://www.geeksforgeeks.org/automate-instagram-messages-using-python/
 #Other useful links:
 #https://selenium-python.readthedocs.io/getting-started.html#simple-usage
@@ -14,22 +13,21 @@ from selenium.webdriver.common.keys import Keys #A lot of Keys in the keyboard
 
 #Create a chrome object.
 #webdriver.Chrome(executable_path='C:/path/to/chromedriver.exe')  #For a chromedriver that's not in the same file.
-driver = webdriver.Chrome()
-  
+ 
 class bot:
-    def __init__(self, username, password, message):
+    def __init__(self, username, password):#it initializes everything inside of it
         self.username = username
         self.password = password
         self.base_url = 'https://www.instagram.com/'
-        self.bot = driver 
-	self.count = 1
+        self.bot = webdriver.Chrome()#driver
+        #functions
         self.login()
         self.read()
         self.write()
         
     def login(self):#------------------Instructions to login and access to the Instagram DMs-------------
         self.bot.get(self.base_url) #driver.get("url") will navigate to a page given by the URL
-  
+          #driver
         enter_username = WebDriverWait(self.bot, 20).until(
             expected_conditions.presence_of_element_located((By.NAME, 'username'))) #until gap username shows.
         enter_username.clear() #clear any default text
@@ -40,7 +38,7 @@ class bot:
         enter_password.clear()
         enter_password.send_keys(self.password)
         enter_password.send_keys(Keys.RETURN) #or Keys.ENTER
-        time.sleep(5)
+        time.sleep(5) #esperar a que la pagina cargue
         
         #https://selenium-python.readthedocs.io/locating-elements.html (locate elements through inspect)
         # first pop-up 
@@ -100,15 +98,17 @@ class bot:
         #write whats on the ouput text file as soon as it is filled with a reply provided by the C program. 
         output_msg = open("output_msg.txt","r")
         reply = output_msg.read()
-	if(self.count == 1):
-		#option menu
         
-        while (reply == ''): #Wait until the output textfile is filled by the C program.
+        #Wait until the output textfile is filled by the C program.
+        while (reply == ''): 
             print("waiting for the bot to reply...")
             time.sleep(1)
             output_msg.seek(0) #set reading back at the top of the text file.
             reply = output_msg.read()
         
+        #Nota
+        #Puede que lea mas rapido de lo que el mensaje dura en escribirse por completo
+        #Por lo tanto se deberia volver a guardar el reply despues de un sleep.!!!!!!
         self.message = reply #Once it gets out of the loop store it as the message.
   
         # select message area
@@ -122,6 +122,14 @@ class bot:
         # send message
         send.send_keys(Keys.RETURN)
         time.sleep(1)
+        
+        self.bot.quit()
 
-project = bot('compsci.exe', 'finalproject', message)
-#driver.quit() #Future change: use this inside the class
+count = 0
+
+while count < 3:
+    project = bot('compsci.exe', 'finalproject')
+    count += 1
+    time.sleep(3)
+    
+#Problem: include the messages from people that are not following the account
