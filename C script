@@ -202,7 +202,7 @@ int send_reply(char reply[SIZE])
 /**************** del_stop_words function ************************/
 {
     FILE *fp, *fp2;
-    char filename[] = "/Users/minoli/Desktop/Homework6/Homework6/gettysburg.txt";
+    char filename[] = "file.txt";
     char second[] = "second.txt";
     char stop[][SIZE] = {"the", "about", "once", "during", "out", "very", "having", "with", "they", "while", "on", "he", "hers", "she", "own", "an", "have", "nor" , "not", "this", "both", "because", "too", "only", "myself", "me", "it", "here", "than", "whom", "who", "if", "my", "how", "those", "i", "can", "did", "a", "but", "by", "off", "does", "on", "we", "so", "our", "now", "before", "can", "more", "ourselves", "above", "up", "all"};
     char string[SIZE];
