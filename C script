@@ -7,6 +7,7 @@ int read_sentence(char message[SIZE]);
 int read_word(char sentence[SIZE], char words[SIZE][SIZE]);
 int show_options(char reply[SIZE]);
 int send_reply(char reply[SIZE]);
+void get_order();
 //enums are categories!!
 
 int main(void)
@@ -84,7 +85,9 @@ int read_sentence(char message[SIZE])
        sts = fgets(line,SIZE,input);
     }
     
-    //Jonathan: Remember to delete the input from the file after it was read! Not done yet
+    //Jonathan: Remember to delete the input from the file after it was read! 
+    fp = fopen("client_msg.txt","w");
+    fclose(fp);
     return 0;
 }
 
@@ -160,7 +163,62 @@ int read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from stri
     return dst_word_idx+1;
 }
 
+
+
+
 //Get order (this should be a category) function to store info in a CSV file (William)
+void get_order()
+{
+	FILE *input;
+	FILE *output;
+	FILE *order;
+	int question_counter = 5;//number of questions
+	int i;
+	char info[SIZE];
+	
+	for(i = 1; i < question_counter; i++)
+	{
+		output = fopen("output_msg.txt","w"); //everytime we open the file with writing mode, it erases what was inside
+		
+		switch(i) //ask questions
+		{
+			case 1:
+				fprintf(output,"What's your name? ");
+				break;
+			case 2:
+				fprintf(output,"What's your phone number? ");
+				break;
+			case 3:
+				fprintf(output,"Place your order please: ");
+				break;
+			case 4:
+				fprintf(output,"What is the address? ");
+				break;
+		}
+		
+		fclose(output);//close file
+		
+		
+		
+		
+		
+		
+		//wait until the client replies (maybe with sts)
+		read_sentence(info[]);//reads the client's response and stores it in the string info
+		
+		//opens csv file and stores the information in it
+		fp = fopen("order.csv","a");
+		fprintf(fp,"%s,",info);
+		
+	}
+	
+	fprintf(fp,"\n");// put a new line so that every order will be separated
+	
+}
+
+
+
+
 
 //show menu de opciones (show menu, order food: store in a CSV file for all the info, QA with the bot).
 int show_options(char reply[SIZE])
