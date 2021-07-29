@@ -86,8 +86,8 @@ int read_sentence(char message[SIZE])
     }
     
     //Jonathan: Remember to delete the input from the file after it was read! 
-    fp = fopen("client_msg.txt","w");
-    fclose(fp);
+    input = fopen("client_msg.txt","w");
+    fclose(input);
     return 0;
 }
 
@@ -204,15 +204,15 @@ void get_order()
 		
 		
 		//wait until the client replies (maybe with sts)
-		read_sentence(info[]);//reads the client's response and stores it in the string info
+		read_sentence(info);//reads the client's response and stores it in the string info
 		
 		//opens csv file and stores the information in it
-		fp = fopen("order.csv","a");
-		fprintf(fp,"%s,",info);
+		order = fopen("order.csv","a");
+		fprintf(order,"%s,",info);
 		
 	}
 	
-	fprintf(fp,"\n");// put a new line so that every order will be separated
+	fprintf(order,"\n");// put a new line so that every order will be separated
 	
 }
 
