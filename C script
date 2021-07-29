@@ -197,3 +197,72 @@ int send_reply(char reply[SIZE])
     return 0;
 }
 
+
+
+/**************** del_stop_words function ************************/
+{
+    FILE *fp, *fp2;
+    char filename[] = "/Users/minoli/Desktop/Homework6/Homework6/gettysburg.txt";
+    char second[] = "second.txt";
+    char stop[][SIZE] = {"the", "about", "once", "during", "out", "very", "having", "with", "they", "while", "on", "he", "hers", "she", "own", "an", "have", "nor" , "not", "this", "both", "because", "too", "only", "myself", "me", "it", "here", "than", "whom", "who", "if", "my", "how", "those", "i", "can", "did", "a", "but", "by", "off", "does", "on", "we", "so", "our", "now", "before", "can", "more", "ourselves", "above", "up", "all"};
+    char string[SIZE];
+    char *p_word;
+    char *p_temp;
+    
+    fp = fopen(filename, "r");
+    if(fp == NULL)
+    {
+        printf("Couldn't open file");
+        return (-1);
+    }
+    
+    fp2 = fopen(second, "w");
+    if(fp2 == NULL)
+    {
+        printf("Couldn't open file");
+        return (-1);
+    }
+    
+    /*Delete the stop words from the file*/
+    while(!feof(fp))
+    {
+        strcpy(string, "\0");
+        /*Reads each line of the file*/
+        fgets(string, SIZE, fp);
+        
+        /*Checks if the stop words are present in the line that has been read previously*/
+        if(strstr(string, stop[][SIZE]))
+        {
+            p_temp = string;
+            while(p_word = strstr(p_temp,stop[][SIZE]))
+            {
+                while(p_temp != p_word)
+                {
+                    /*keep going if the words are not stop words*/
+                    fputc(*p_temp, fp2);
+                    p_temp++;
+                }
+                /*Skip the words that are to be deleted*/
+                p_word = p_word + strlen(stop[][SIZE]);
+                p_temp = p_word;
+            }
+            while(*p_temp != '\0')
+            {
+                /*continue after the stop word has been ignored or deleted*/
+                fputc(*p_temp, fp2);
+                p_temp++;
+            }
+        }
+        else
+        {
+            fputs(string, fp2);
+        }
+    }
+    fclose(fp);
+    fclose(fp2);
+    
+    remove(filename);
+    rename(second, filename);
+    
+    return 0;
+}
