@@ -3,46 +3,65 @@
 #include <string.h>
 #define SIZE 100
 
-int read_sentence(char message[SIZE]);
-int read_word(char sentence[SIZE], char words[SIZE][SIZE]);
+void get_option(char *option);
+int read_sentence(char message[SIZE]);// change word to lower case
+int read_word(char sentence[SIZE], char words[SIZE][SIZE]); 
 int show_options(char reply[SIZE]);
 int send_reply(char reply[SIZE]);
 void get_order();
+void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SIZE]);//returns the number of words *categorizeds*
 //enums are categories!!
 
 int main(void)
 {
     char sentence[SIZE];//either sentence or word
     char words[SIZE][SIZE];
+	char clean_words[SIZE][SIZE];
+	char reply[SIZE]
+	char if_help = "Did the program help?(y/n)";
     int n, wcount; //count of the number of words stored in words[SIZE][SIZE]
+	char option;
+	char quit = "n";
     //Maybe include msg count? to know what to do at which time.
     
-    read_sentence(sentence);
-    printf("%s\n", sentence);
-    //idea: category = find_sentence_category(string);
-    
-    //take word by word from the sentence if the sentence is not registered
-    wcount = read_word(sentence, words);
-    for (n=0; n < wcount; n++)
+	// delete first message
+	read_sentence(sentence);
+	
+	do
 	{
-		printf("%d: %s\n", n, words[n]);
-	}
-    //category = find_word_category(string);
+		show_options(reply);
+		get_option(option);
+		
+		switch(option)
+		{
+			case "A": //location of the shop
+			case "a":
+				send_reply(????); //verbal address or maybe a link of waze, google maps
+				break;
+				
+			case "B": //Menu of the shop
+			case "b":
+				send_reply(????); // send link of menu 
+				break;
+				
+			case "C": // when does shop open and close?
+			case "c":
+				send_reply(????); // send the opening and closing time
+				break;
+				
+			case "D": // Further questions (ask a question to our chat bot)
+			case "d":
+				read_sentence(sentence);
+				//find sentence category, if was not successful, read words
+				
+				
+				break;
+		}
+		
+		send_reply(if_help);
+		get_option(quit);
+	}while(quit == "n");
     
-    
-    /*Part to include the logic behind the replies (botsillo)
-     * 
-     * 
-     * 
-     * */
-    
-    //Reply Test
-    //Reuse the same sentence string for the reply
-    strcpy(sentence,"Test message, this will be sent to instagram btw.");
-    send_reply(sentence);
-    
-    //Show options test:
-    show_options(sentence);
 
 	return 0;
 }
@@ -166,9 +185,6 @@ int read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from stri
     return dst_word_idx+1;
 }
 
-
-
-
 //Get order (this should be a category) function to store info in a CSV file (William)
 void get_order()
 {
@@ -201,11 +217,6 @@ void get_order()
 		
 		fclose(output);//close file
 		
-		
-		
-		
-		
-		
 		//wait until the client replies (maybe with sts)
 		read_sentence(info);//reads the client's response and stores it in the string info
 		
@@ -219,10 +230,6 @@ void get_order()
 	
 }
 
-
-
-
-
 //show menu de opciones (show menu, order food: store in a CSV file for all the info, QA with the bot).
 int show_options(char reply[SIZE])
 {
@@ -233,6 +240,20 @@ int show_options(char reply[SIZE])
     return 0;
 }
 
+// gets the option that the user wants
+void get_option(char *option)
+{
+	FILE *input;
+	
+	input = fopen("client_msg.txt","r");
+	
+	// wait till user writes(with sts)
+	*option = getc(input); // gets the character from the file
+	fclose(input);
+	
+	input = fopen("client_msg.txt","w");
+    fclose(input);//deletes what was in the file
+}
 //find_sentence_category(string); (categorization)
 //find_word_category(word);--> helpers are the delete stop words, find root, read word.
 
@@ -258,72 +279,30 @@ int send_reply(char reply[SIZE])
     return 0;
 }
 
-
-
 /**************** del_stop_words function ************************/
+int del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[SIZE][SIZE]) // Minoli
 {
-    FILE *fp, *fp2;
-    char filename[] = "file.txt";
-    char second[] = "second.txt";
-    char stop[][SIZE] = {"the", "about", "once", "during", "out", "very", "having", "with", "they", "while", "on", "he", "hers", "she", "own", "an", "have", "nor" , "not", "this", "both", "because", "too", "only", "myself", "me", "it", "here", "than", "whom", "who", "if", "my", "how", "those", "i", "can", "did", "a", "but", "by", "off", "does", "on", "we", "so", "our", "now", "before", "can", "more", "ourselves", "above", "up", "all"};
-    char string[SIZE];
-    char *p_word;
-    char *p_temp;
-    
-    fp = fopen(filename, "r");
-    if(fp == NULL)
-    {
-        printf("Couldn't open file");
-        return (-1);
-    }
-    
-    fp2 = fopen(second, "w");
-    if(fp2 == NULL)
-    {
-        printf("Couldn't open file");
-        return (-1);
-    }
-    
-    /*Delete the stop words from the file*/
-    while(!feof(fp))
-    {
-        strcpy(string, "\0");
-        /*Reads each line of the file*/
-        fgets(string, SIZE, fp);
-        
-        /*Checks if the stop words are present in the line that has been read previously*/
-        if(strstr(string, stop[][SIZE]))
-        {
-            p_temp = string;
-            while(p_word = strstr(p_temp,stop[][SIZE]))
-            {
-                while(p_temp != p_word)
-                {
-                    /*keep going if the words are not stop words*/
-                    fputc(*p_temp, fp2);
-                    p_temp++;
-                }
-                /*Skip the words that are to be deleted*/
-                p_word = p_word + strlen(stop[][SIZE]);
-                p_temp = p_word;
-            }
-            while(*p_temp != '\0')
-            {
-                /*continue after the stop word has been ignored or deleted*/
-                fputc(*p_temp, fp2);
-                p_temp++;
-            }
-        }
-        else
-        {
-            fputs(string, fp2);
-        }
-    }
-    fclose(fp);
-    fclose(fp2);
-    
-    remove(filename);
-    rename(second, filename);
-    
+    char stop[55][SIZE] = {"the", "about", "once", "during", "out", "very", "having", "with", "they", "while", "on", "he", "hers", "she", "own", "an", "have", "nor" , "not", "this", "both", "because", "too", "only", "myself", "me", "it", "here", "than", "whom", "who", "if", "my", "how", "those", "i", "can", "did", "a", "but", "by", "off", "does", "on", "we", "so", "our", "now", "before", "can", "more", "ourselves", "above", "up", "all"};
+    int x,y;
+	int not_stop = 0;
+	int clean_idx = 0;
+	
+	for(x = 0;x < num_words; x++)
+	{
+		not_stop = 0;
+		for(y = 0; y < 55; y++)
+		{
+			if( strcmp( words[x], stop[y]) == 0 )
+			{
+				not_stop = 1;
+			}
+		}
+		if( not_stop == 0)
+		{
+			strcpy(clean_words[clean_idx],words[x]);
+			clean_idx++;
+		}
+	}
+ 
     return 0;
 }
