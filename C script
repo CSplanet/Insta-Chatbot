@@ -62,8 +62,11 @@ int read_sentence(char message[SIZE])
         return -1;
     }
     
-    sts = fgets(line, SIZE, input);//extract the whole sentence out of the file
-
+    do
+    {
+    	sts = fgets(line, SIZE, input);//extract the whole sentence out of the file
+    }while(sts == NULL);//keep scanning until there is a message
+    
     while (sts != NULL)
     {
         countl++;
