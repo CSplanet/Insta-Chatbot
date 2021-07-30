@@ -10,7 +10,26 @@ int show_options(char reply[SIZE]);
 int send_reply(char reply[SIZE]);
 void get_order();
 void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SIZE]);//returns the number of words *categorizeds*
-//enums are categories!!
+
+/* Word categories */
+typedef enum
+{
+    greeting,
+    food ,
+    drink,
+    location,
+    payment,
+    spicy,
+    dessert,
+} categories;
+
+/* Linked List with the word and its category */
+typedef struct node_s
+{
+    char word[20];
+    categories topic;
+    struct node_s *p_next;
+} node_t;
 
 int main(void)
 {
