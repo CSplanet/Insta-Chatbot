@@ -10,6 +10,8 @@ int show_options(char reply[SIZE]);
 int send_reply(char reply[SIZE]);
 void get_order();
 void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SIZE]);//returns the number of words *categorizeds*
+// for reply, put a random num to pick a random answer from a answer pool
+
 
 /* Word categories */
 typedef enum
