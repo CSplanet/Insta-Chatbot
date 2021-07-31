@@ -11,18 +11,22 @@ int send_reply(char reply[SIZE]);
 void get_order();
 void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SIZE]);//returns the number of words *categorizeds*
 // for reply, put a random num to pick a random answer from a answer pool
+int load_vocab(node_t **pp_head, char vocfile[10]);
 
 
 /* Word categories */
 typedef enum
 {
     greeting,
-    food ,
+    gratitude,
+    food,
     drink,
-    location,
-    payment,
-    spicy,
     dessert,
+    spicy,
+    special,//diabetic, celiaco, vegetarian, etc
+    size,
+    location,
+    payment
 } categories;
 
 /* Linked List with the word and its category */
@@ -300,7 +304,7 @@ int send_reply(char reply[SIZE])
     return 0;
 }
 
-/**************** del_stop_words function ************************/
+
 int del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[SIZE][SIZE]) // Minoli
 {
     char stop[55][SIZE] = {"the", "about", "once", "during", "out", "very", "having", "with", "they", "while", "on", "he", "hers", "she", "own", "an", "have", "nor" , "not", "this", "both", "because", "too", "only", "myself", "me", "it", "here", "than", "whom", "who", "if", "my", "how", "those", "i", "can", "did", "a", "but", "by", "off", "does", "on", "we", "so", "our", "now", "before", "can", "more", "ourselves", "above", "up", "all"};
@@ -324,6 +328,90 @@ int del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[SIZE]
 			clean_idx++;
 		}
 	}
+ 
+    return 0;
+}
+
+
+int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name of the file
+{
+    FILE *vocab;
+    char letter;
+    char token[20];//start as an empty string
+    int token_idx = 0;
+    node_t *p_node; //helper node
+    node_t *p_last;//to find the last
+    
+    vocab = fopen(vocfile,"r");
+    
+    if (vocab == NULL)
+    {
+        printf("Couldn't open file");
+        return -1;
+    }
+    
+    //setup some space
+    p_node = malloc(sizeof(node_t));
+    //check for failure
+    if (p_node == NULL)
+    {
+        printf("Error, no space could be assigned to node.");
+        return -1;
+    }
+    
+    //read letter, get until a ',' or '\n'
+    while (1)
+    {
+        //note: new lines will be omitted
+        letter = fgetc(vocab);
+        
+        if (letter >= 'a' && letter <= 'z')
+        {
+            //append each letter to the token
+            token[token_idx] = letter;
+            token_idx++;
+        }
+        else if (letter == ',')
+        {
+            //end of the token
+            token[token_idx] = '\0';
+            //store word and number as category
+            strcpy(p_node->word,token);
+            //printf("%s\n", p_node->word);//fix this
+            
+            //read one more and save that number
+            letter = fgetc(vocab);
+            p_node->topic = atoi(&letter);
+            //printf("%d\n", p_node->topic);
+            //storing nodes each time at the end of the list.
+            p_node->p_next = NULL;
+            //logic to adding nodes at the end: based on code of the ppt 7 on linked lists
+            //if the list is empty, point the head to it
+            if (*pp_head == NULL)
+            {
+                *pp_head = p_node;
+            }
+            else
+            {//problem is here!!
+                //find last node on list
+                p_last = *pp_head;
+                while (p_last->p_next != NULL)
+                {
+                    p_last = p_last->p_next;
+                }
+                
+                //make last node point to new node
+                p_last->p_next = p_node;
+            }
+            
+            token_idx = 0;
+        }
+        //end of the file
+        else if (letter == EOF)
+        {
+            break;
+        }
+    }
  
     return 0;
 }
