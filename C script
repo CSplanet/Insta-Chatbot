@@ -34,6 +34,8 @@ const char location[]= "we're in Escazu."; //change to waze link
 const char menu[] = "https://docs.google.com/document/d/1MGEFnL7qFkvQbN8hntoHJioYiGv5yqUELz-rTaSoq0U/edit?usp=sharing"; //show menu link;
 const char schedule[] = ""; //show schedule;
 const char error[] = "please enter one of the options.";
+const char order[] = "Got your order! we will call you when we send it.";
+const char end[] = "Thank you for contacting again, have a nice rest of the day!";
 
 
 
@@ -86,13 +88,19 @@ int main(void)
 				send_reply(schedule); // send the schedule of restaurant
 				break;
 				
-			case 'D': // Further questions (ask a question to our chat bot)
+			case 'D': // orders
 			case 'd':
+				get_order();
+				send_reply(order);
+				break;
+			case 'E': // Further questions (ask our chat bot)
+			case 'e':
 				read_sentence(sentence);
 				//find sentence category, if was not successful, read words
 				
 			
 				break;
+				
 				
 			default:
 				send_reply(error); // if the user did not enter any of the options, tell him.
