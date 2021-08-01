@@ -67,7 +67,7 @@ int main(void)
 	do
 	{
 		send_reply(option_menu);
-		printf("Showing options to user.");
+		printf("Showing options to user.\n");
 		get_option(&option);
 		printf("Option %c, Selecting answer\n", option);
 		
@@ -133,7 +133,7 @@ int read_sentence(char message[SIZE])
     {
     	sts = fgets(line, SIZE, input);//extract the whole sentence out of the file
     }while(sts == NULL);//keep scanning until there is a message
-    printf("read client_message file");
+    printf("read client_message file\n");
 	
     while (sts != NULL)
     {
