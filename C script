@@ -27,15 +27,15 @@ typedef struct node_s
 } node_t;
 
 
-//constant replies
-const char if_help[]= "Did the program help?(y/n)";
-const char option_menu[] = "Hello, thank you for contacting us, what can I help:\nA) show location of the restaurant\nB) show menu of the restaurant\nC) schedule\nD) orders\nE) further questions(answered by our chat bot). ";
-const char location[]= "we're in Escazu."; //change to waze link
-const char menu[] = "https://docs.google.com/document/d/1MGEFnL7qFkvQbN8hntoHJioYiGv5yqUELz-rTaSoq0U/edit?usp=sharing"; //show menu link;
-const char schedule[] = ""; //show schedule;
-const char error[] = "please enter one of the options.";
-const char order[] = "Got your order! we will call you when we send it.";
-const char end[] = "Thank you for contacting again, have a nice rest of the day!";
+// replies
+char if_help[]= "Did the program help?(y/n)";
+char option_menu[] = "Hello, thank you for contacting us, what can I help:\nA) show location of the restaurant\nB) show menu of the restaurant\nC) schedule\nD) orders\nE) further questions(answered by our chat bot). ";
+char restaurant_location[]= "we're in Escazu."; //change to waze link
+char menu[] = "https://docs.google.com/document/d/1MGEFnL7qFkvQbN8hntoHJioYiGv5yqUELz-rTaSoq0U/edit?usp=sharing"; //show menu link;
+char schedule[] = ""; //show schedule;
+char error[] = "please enter one of the options.";
+char order[] = "Got your order! we will call you when we send it.";
+char end[] = "Thank you for contacting again, have a nice rest of the day!";
 
 
 
@@ -75,7 +75,7 @@ int main(void)
 		{
 			case 'A': //location of the shop
 			case 'a':
-				send_reply(location); 
+				send_reply(restaurant_location); 
 				break;
 				
 			case 'B': //Menu of the shop
