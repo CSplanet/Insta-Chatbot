@@ -44,6 +44,7 @@ int main(void)
 	char clean_words[SIZE][SIZE];
 	char reply[SIZE]
 	char if_help = "Did the program help?(y/n)";
+	char location = "we're in Escazu.";
     int n, wcount; //count of the number of words stored in words[SIZE][SIZE]
 	char option;
 	char quit = "n";
@@ -61,7 +62,7 @@ int main(void)
 		{
 			case "A": //location of the shop
 			case "a":
-				send_reply(????); //verbal address or maybe a link of waze, google maps
+				send_reply(location); //verbal address or maybe a link of waze, google maps
 				break;
 				
 			case "B": //Menu of the shop
