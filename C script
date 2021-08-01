@@ -443,7 +443,7 @@ int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name o
     return 0;
 }
 
-int find_word_category(char words[1][20], node_t *p_head, int numw, int cats[10], char data[SIZE])//numw = number of words in the array (get it from read_words function)
+int find_word_category(char words[SIZE][SIZE], node_t *p_head, int numw, int cats[10], char data[SIZE])//numw = number of words in the array (get it from read_words function)
 {
 	node_t *p_node; 
 	int i;
