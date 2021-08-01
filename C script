@@ -38,8 +38,6 @@ void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SI
 int load_vocab(node_t **pp_head, char vocfile[10]);
 
 
-
-
 int main(void)
 {
     char sentence[SIZE];//either sentence or word
@@ -47,25 +45,27 @@ int main(void)
 	char clean_words[SIZE][SIZE];
 	char reply[SIZE];
 	char if_help[SIZE]= "Did the program help?(y/n)";
-	char location[SIZE]= "we're in Escazu.";
+	char location[SIZE]= "we're in Escazu.";//	verbal address or maybe a link of waze, google maps
     int n, wcount; //count of the number of words stored in words[SIZE][SIZE]
-	char *option;
-	char *quit;
+	char option;
+	char quit;
     //Maybe include msg count? to know what to do at which time.
     
 	// delete first message
 	read_sentence(sentence);
-	
+	printf("New message received.\n");
 	do
 	{
 		show_options(reply);
-		get_option(option);
+		printf("Showing options to user.");
+		get_option(&option);
+		printf("Option %c, Selecting answer\n", option);
 		
-		switch(*option)
+		switch(option)
 		{
 			case 'A': //location of the shop
 			case 'a':
-				send_reply(location); //	verbal address or maybe a link of waze, google maps
+				send_reply(location); 
 				break;
 				
 			case 'B': //Menu of the shop
@@ -83,14 +83,15 @@ int main(void)
 				read_sentence(sentence);
 				//find sentence category, if was not successful, read words
 				
-				
+			
 				break;
 		}
 		
 		send_reply(if_help);
-		get_option(quit);
-	}while(quit == "n");
+		get_option(&quit);
+	}while(quit == 'n');
     
+	//Use new function to delete the message in the output
 
 	return 0;
 }
@@ -114,7 +115,8 @@ int read_sentence(char message[SIZE])
     {
     	sts = fgets(line, SIZE, input);//extract the whole sentence out of the file
     }while(sts == NULL);//keep scanning until there is a message
-    
+    printf("read client_message file");
+	
     while (sts != NULL)
     {
         countl++;
