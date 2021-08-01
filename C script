@@ -48,6 +48,7 @@ void get_order();
 void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SIZE]);//returns the number of words *categorizeds*
 // for reply, put a random num to pick a random answer from a answer pool
 int load_vocab(node_t **pp_head, char vocfile[10]);
+int find_word_category(char words[10][20], node_t *p_head, int numw, int cats[10], char data[SIZE]);
 
 
 int main(void)
@@ -440,4 +441,56 @@ int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name o
     }
  
     return 0;
+}
+
+int find_word_category(char words[1][20], node_t *p_head, int numw, int cats[10], char data[SIZE])//numw = number of words in the array (get it from read_words function)
+{
+	node_t *p_node; 
+	int i;
+	
+	//set all the slots to zero at the beginning of the categorization.
+	for(i = 0; i < 10; i++)
+		cats[i] = 0;
+	
+	
+	p_node = p_head;
+	//traversal list traversal until the second to last, needs another logic to compare the last one
+	while (p_node != NULL)
+	{
+		for (i = 0; i < numw; i++)//check every word
+		{
+			//if the 2 words are equal, we have a category to extract
+			if (strcmp(words[i], p_node->word) == 0)
+			{
+				//depending on the category, change the corresponding slot on the array
+				cats[p_node->topic] = 1;
+				//print test
+				printf("category found.\n");
+				//include here the logic for the data to store in the data array
+				
+				//if the topic is food, store food
+				if (p_node->topic == 2)
+				{
+					strcpy(data, p_node->word);
+				}
+				//if the topic is special, store special (types of food diets like diabetic, vegan, vegetarian)
+				else if (p_node->topic == 6)
+				{
+					strcpy(data, p_node->word);
+				}
+				//payment method to answer a yes or no (credit, cash, sinpe)
+				else if (p_node->topic == 9)
+				{
+					strcpy(data, p_node->word);
+				}
+			}
+		}
+		
+		//get to the next node
+		p_node = p_node->p_next;
+		printf("searching.\n");
+		
+		
+	}
+	return(0);
 }
