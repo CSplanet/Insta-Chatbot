@@ -14,7 +14,7 @@ typedef enum
     spicy,
     special,//diabetic, celiaco, vegetarian, etc
     size,
-    location,
+    delivery,
     payment
 } categories;
 
