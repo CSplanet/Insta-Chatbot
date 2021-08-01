@@ -3,17 +3,6 @@
 #include <string.h>
 #define SIZE 100
 
-void get_option(char *option);
-int read_sentence(char message[SIZE]);// change word to lower case
-int read_word(char sentence[SIZE], char words[SIZE][SIZE]); 
-int show_options(char reply[SIZE]);
-int send_reply(char reply[SIZE]);
-void get_order();
-void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SIZE]);//returns the number of words *categorizeds*
-// for reply, put a random num to pick a random answer from a answer pool
-int load_vocab(node_t **pp_head, char vocfile[10]);
-
-
 /* Word categories */
 typedef enum
 {
@@ -37,17 +26,31 @@ typedef struct node_s
     struct node_s *p_next;
 } node_t;
 
+
+void get_option(char *option);
+int read_sentence(char message[SIZE]);// change word to lower case
+int read_word(char sentence[SIZE], char words[SIZE][SIZE]); 
+int show_options(char reply[SIZE]);
+int send_reply(char reply[SIZE]);
+void get_order();
+void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SIZE]);//returns the number of words *categorizeds*
+// for reply, put a random num to pick a random answer from a answer pool
+int load_vocab(node_t **pp_head, char vocfile[10]);
+
+
+
+
 int main(void)
 {
     char sentence[SIZE];//either sentence or word
     char words[SIZE][SIZE];
 	char clean_words[SIZE][SIZE];
-	char reply[SIZE]
-	char if_help = "Did the program help?(y/n)";
-	char location = "we're in Escazu.";
+	char reply[SIZE];
+	char if_help[SIZE]= "Did the program help?(y/n)";
+	char location[SIZE]= "we're in Escazu.";
     int n, wcount; //count of the number of words stored in words[SIZE][SIZE]
-	char option;
-	char quit = "n";
+	char *option;
+	char *quit;
     //Maybe include msg count? to know what to do at which time.
     
 	// delete first message
@@ -58,25 +61,25 @@ int main(void)
 		show_options(reply);
 		get_option(option);
 		
-		switch(option)
+		switch(*option)
 		{
-			case "A": //location of the shop
-			case "a":
-				send_reply(location); //verbal address or maybe a link of waze, google maps
+			case 'A': //location of the shop
+			case 'a':
+				send_reply(location); //	verbal address or maybe a link of waze, google maps
 				break;
 				
-			case "B": //Menu of the shop
-			case "b":
-				send_reply(????); // send link of menu 
+			case 'B': //Menu of the shop
+			case 'b':
+				//send_reply(????);  send link of menu 
 				break;
 				
-			case "C": // when does shop open and close?
-			case "c":
-				send_reply(????); // send the opening and closing time
+			case 'C': // when does shop open and close?
+			case 'c':
+				//send_reply(????);  send the opening and closing time
 				break;
 				
-			case "D": // Further questions (ask a question to our chat bot)
-			case "d":
+			case 'D': // Further questions (ask a question to our chat bot)
+			case 'd':
 				read_sentence(sentence);
 				//find sentence category, if was not successful, read words
 				
@@ -136,7 +139,7 @@ int read_sentence(char message[SIZE])
 	// after all that, turn the string to lower case to make it easy to operate
 	for(i = 0; i < strlen(message); i++)
 	{
-		if(message[i] > 64 && message[i] < 91)-
+		if(message[i] > 64 && message[i] < 91)
 		{
 			message[i] = message[i] + 32;
 		}
@@ -286,7 +289,7 @@ void get_option(char *option)
 	{
 		*option = getc(input);// gets the character from the file
 		
-	}while(option == EOF); 
+	}while(*option == EOF); 
 	
 	fclose(input);
 	
@@ -319,7 +322,7 @@ int send_reply(char reply[SIZE])
 }
 
 
-int del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[SIZE][SIZE]) // Minoli
+void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[SIZE][SIZE]) // Minoli
 {
     char stop[55][SIZE] = {"the", "about", "once", "during", "out", "very", "having", "with", "they", "while", "on", "he", "hers", "she", "own", "an", "have", "nor" , "not", "this", "both", "because", "too", "only", "myself", "me", "it", "here", "than", "whom", "who", "if", "my", "how", "those", "i", "can", "did", "a", "but", "by", "off", "does", "on", "we", "so", "our", "now", "before", "can", "more", "ourselves", "above", "up", "all"};
     int x,y;
@@ -343,7 +346,6 @@ int del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[SIZE]
 		}
 	}
  
-    return 0;
 }
 
 
