@@ -28,16 +28,18 @@ typedef struct node_s
 
 
 //constant replies
-const char if_help[SIZE]= "Did the program help?(y/n)";
-const char option_menu[SIZE] = "Hello, thank you for contacting us, what can I help:\nA) show location of the restaurant\nB) show menu of the restaurant\nC) schedule\nD) further questions(answered by our chat bot). "
-const char location[SIZE]= "we're in Escazu."; //change to waze link
-const char menu[SIZE] = ""; //show menu link;
-const char schedule[SIZE] = ""; //show schedule;
+const char if_help[]= "Did the program help?(y/n)";
+const char option_menu[] = "Hello, thank you for contacting us, what can I help:\nA) show location of the restaurant\nB) show menu of the restaurant\nC) schedule\nD) further questions(answered by our chat bot). ";
+const char location[]= "we're in Escazu."; //change to waze link
+const char menu[] = "https://docs.google.com/document/d/1MGEFnL7qFkvQbN8hntoHJioYiGv5yqUELz-rTaSoq0U/edit?usp=sharing"; //show menu link;
+const char schedule[] = ""; //show schedule;
+const char error[] = "please enter one of the options.";
+
 
 
 
 void get_option(char *option);
-int read_sentence(char message[SIZE]);// change word to lower case
+int read_sentence(char message[SIZE]);
 int read_word(char sentence[SIZE], char words[SIZE][SIZE]); 
 int send_reply(char reply[SIZE]);
 void get_order();
@@ -52,8 +54,6 @@ int main(void)
     char words[SIZE][SIZE];
 	char clean_words[SIZE][SIZE];
 	char reply[SIZE];
-	char if_help[SIZE]= "Did the program help?(y/n)";
-	char location[SIZE]= "we're in Escazu.";//	verbal address or maybe a link of waze, google maps
     int n, wcount; //count of the number of words stored in words[SIZE][SIZE]
 	char option;
 	char quit;
@@ -93,13 +93,15 @@ int main(void)
 				
 			
 				break;
+				
+			default:
+				send_reply(error); // if the user did not enter any of the options, tell him.
+				continue;
 		}
 		
 		send_reply(if_help);
 		get_option(&quit);
 	}while(quit == 'n');
-    
-	//Use new function to delete the message in the output
 
 	return 0;
 }
@@ -290,7 +292,7 @@ void get_option(char *option)
 	{
 		*option = getc(input);// gets the character from the file
 		
-	}while(*option == EOF); 
+	}while(*option == EOF || *option == " "); 
 	
 	fclose(input);
 	
@@ -307,6 +309,17 @@ void get_option(char *option)
 int send_reply(char reply[SIZE])
 {
     FILE *output;
+	char state;
+	output = fopen("output_msg.txt","r");
+	
+	//wait until file is empty
+	do
+	{
+		state = getc(output);
+		
+	}while(state != EOF);
+	fclose(output);
+	
     output = fopen("output_msg.txt","w");
     
     if (output == NULL)
