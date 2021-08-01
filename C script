@@ -280,6 +280,7 @@ void get_order()
 		//opens csv file and stores the information in it
 		order = fopen("order.csv","a");
 		fprintf(order,"%s,",info);
+		fclose(order);
 		
 	}
 	
