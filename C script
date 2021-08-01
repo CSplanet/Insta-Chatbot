@@ -27,10 +27,18 @@ typedef struct node_s
 } node_t;
 
 
+//constant replies
+const char if_help[SIZE]= "Did the program help?(y/n)";
+const char option_menu[SIZE] = "Hello, thank you for contacting us, what can I help:\nA) show location of the restaurant\nB) show menu of the restaurant\nC) schedule\nD) further questions(answered by our chat bot). "
+const char location[SIZE]= "we're in Escazu."; //change to waze link
+const char menu[SIZE] = ""; //show menu link;
+const char schedule[SIZE] = ""; //show schedule;
+
+
+
 void get_option(char *option);
 int read_sentence(char message[SIZE]);// change word to lower case
 int read_word(char sentence[SIZE], char words[SIZE][SIZE]); 
-int show_options(char reply[SIZE]);
 int send_reply(char reply[SIZE]);
 void get_order();
 void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SIZE]);//returns the number of words *categorizeds*
@@ -56,7 +64,7 @@ int main(void)
 	printf("New message received.\n");
 	do
 	{
-		show_options(reply);
+		send_reply(option_menu);
 		printf("Showing options to user.");
 		get_option(&option);
 		printf("Option %c, Selecting answer\n", option);
@@ -70,12 +78,12 @@ int main(void)
 				
 			case 'B': //Menu of the shop
 			case 'b':
-				//send_reply(????);  send link of menu 
+				send_reply(menu); //send link of menu 
 				break;
 				
 			case 'C': // when does shop open and close?
 			case 'c':
-				//send_reply(????);  send the opening and closing time
+				send_reply(schedule); // send the schedule of restaurant
 				break;
 				
 			case 'D': // Further questions (ask a question to our chat bot)
@@ -269,15 +277,6 @@ void get_order()
 	
 }
 
-//show menu de opciones (show menu, order food: store in a CSV file for all the info, QA with the bot).
-int show_options(char reply[SIZE])
-{
-    //Se puede modificar luego
-    strcpy(reply, "Hello! to see our menu enter A, to order enter B, for bot assistance enter C");
-    send_reply(reply);
-    
-    return 0;
-}
 
 // gets the option that the user wants
 void get_option(char *option)
