@@ -132,7 +132,15 @@ int read_sentence(char message[SIZE])
        sts = fgets(line,SIZE,input);
     }
     
-    //Jonathan: Remember to delete the input from the file after it was read! 
+	// after all that, turn the string to lower case to make it easy to operate
+	for(i = 0; i < strlen(message); i++)
+	{
+		if(message[i] > 64 && message[i] < 91)-
+		{
+			message[i] = message[i] + 32;
+		}
+	}
+    //Remember to delete the input from the file after it was read! 
     input = fopen("client_msg.txt","w");
     fclose(input);
     return 0;
@@ -273,7 +281,12 @@ void get_option(char *option)
 	input = fopen("client_msg.txt","r");
 	
 	// wait till user writes(with sts)
-	*option = getc(input); // gets the character from the file
+	do
+	{
+		*option = getc(input);// gets the character from the file
+		
+	}while(option == EOF); 
+	
 	fclose(input);
 	
 	input = fopen("client_msg.txt","w");
@@ -339,8 +352,8 @@ int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name o
     char letter;
     char token[20];//start as an empty string
     int token_idx = 0;
+	int i;
     node_t *p_node; //helper node
-    node_t *p_last;//to find the last
     
     vocab = fopen(vocfile,"r");
     
@@ -350,14 +363,7 @@ int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name o
         return -1;
     }
     
-    //setup some space
-    p_node = malloc(sizeof(node_t));
-    //check for failure
-    if (p_node == NULL)
-    {
-        printf("Error, no space could be assigned to node.");
-        return -1;
-    }
+    
     
     //read letter, get until a ',' or '\n'
     while (1)
@@ -373,7 +379,15 @@ int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name o
         }
         else if (letter == ',')
         {
-            //end of the token
+             //setup some space
+			p_node = malloc(sizeof(node_t));
+			//check for failure
+			if (p_node == NULL)
+			{
+				printf("Error, no space could be assigned to node.");
+				return -1;
+			}
+			//end of the token
             token[token_idx] = '\0';
             //store word and number as category
             strcpy(p_node->word,token);
@@ -381,28 +395,14 @@ int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name o
             
             //read one more and save that number
             letter = fgetc(vocab);
-            p_node->topic = atoi(&letter);
+            i = atoi(&letter);
+            p_node->topic = i;
             //printf("%d\n", p_node->topic);
             //storing nodes each time at the end of the list.
-            p_node->p_next = NULL;
+            p_node->p_next = *pp_head;
             //logic to adding nodes at the end: based on code of the ppt 7 on linked lists
             //if the list is empty, point the head to it
-            if (*pp_head == NULL)
-            {
-                *pp_head = p_node;
-            }
-            else
-            {//problem is here!!
-                //find last node on list
-                p_last = *pp_head;
-                while (p_last->p_next != NULL)
-                {
-                    p_last = p_last->p_next;
-                }
-                
-                //make last node point to new node
-                p_last->p_next = p_node;
-            }
+            *pp_head = p_node;
             
             token_idx = 0;
         }
