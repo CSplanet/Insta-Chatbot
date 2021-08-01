@@ -60,6 +60,7 @@ int main(void)
     int n, wcount; //count of the number of words stored in words[SIZE][SIZE]
 	char option;
 	char quit;
+	int cats[10];
     //Maybe include msg count? to know what to do at which time.
     
 	// delete first message
