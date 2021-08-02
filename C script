@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #define SIZE 100
+#define WORD_SIZE 20
+
 
 /* Word categories */
 typedef enum
@@ -18,6 +20,7 @@ typedef enum
     payment
 } categories;
 
+
 /* Linked List with the word and its category */
 typedef struct node_s
 {
@@ -27,16 +30,19 @@ typedef struct node_s
 } node_t;
 
 
-//constant replies
-char if_help[]= "\nDo you need anything else?(y/n)";
+//replies for options
+
 char option_menu[] = "Hello, thank you for contacting us, what can I help:\nA) show location of the restaurant\nB) show menu of the restaurant\nC) schedule\nD) delivery\nE) further questions(answered by our chat bot). ";
-char restaurant_location[]= "we're in Escazu."; //change to waze link
-char menu[] = "https://docs.google.com/document/d/1MGEFnL7qFkvQbN8hntoHJioYiGv5yqUELz-rTaSoq0U/edit?usp=sharing"; //show menu link;
-char schedule[] = ""; //show schedule;
-char error[] = "please enter one of the options.";
+char restaurant_location[]= "This is the address in google maps:\nhttps://www.google.com/maps/place/9%C2%B057'30.4%22N+84%C2%B004'46.6%22W/@9.9591096,-84.0796901,19.1z/data=!4m5!3m4!1s0x0:0x0!8m2!3d9.9584541!4d-84.07961?hl=es";
+char menu[] = "This is our menu:\nhttps://docs.google.com/document/d/1MGEFnL7qFkvQbN8hntoHJioYiGv5yqUELz-rTaSoq0U/edit?usp=sharing"; 
+char schedule[] = "The restaurant opens from 11 a.m. to 9 p.m. , Monday to Friday";
 char order[] = "Got your order! we will call you when we send it.";
-char end[] = "Thank you for contacting again, have a nice rest of the day!";
-char rest_menu[][SIZE][SIZE] = {{"pulled","pork","sanguches","x"},
+char if_help[]= "\nDo you need anything else?(y/n)";
+char error[] = "please enter one of the options.";
+
+
+// replies and data for word_reply function
+char rest_menu[][4][WORD_SIZE] = {{"pulled","pork","sanguches","x"},
 							{"taquiza","cochinita","pibil","x"},
 							{"huevo","dinosaurio","x","x"},
 							{"surtido","cantina","x","x"},
@@ -44,12 +50,20 @@ char rest_menu[][SIZE][SIZE] = {{"pulled","pork","sanguches","x"},
 							{"chifri","x","x","x"},
 							{"costilla", "completa","cerdo","ahumada"}};
 							
-char complete_menu[][SIZE]= {"pulled pork sanguches","taquiza de cochinita pibil","huevo de dinosaurio","surtido de cantina","rice and beans","chifri rice","costilla completa de cerdo ahumada"};
+char complete_menu[][SIZE]= {"pulled pork sanguches",
+							"taquiza de cochinita pibil",
+							"huevo de dinosaurio",
+							"surtido de cantina",
+							"rice and beans",
+							"chifri rice",
+							"costilla completa de cerdo ahumada"};
+							
 int spice[]      = {0,0,0,1,1,1,0};
 char food_size[]  = "4744435";
-char food_price[][SIZE] = {"8000","14000","8000","8000","8000","6000","10000"};
-char greet_reply[SIZE] = "Hello,";
-char gratitude_reply[SIZE] = "you're welcome"; 
+char food_price[][WORD_SIZE] = {"8000","14000","8000","8000","8000","6000","10000"};
+
+char greet_reply[] = "Hello,";
+char gratitude_reply[] = "you're welcome"; 
 char drink_reply[]= "we don't provide drinks";
 char dessert_reply[] = "we don't provide desserts";
 char delivery_reply[] = "we only deliver near san jose";
@@ -57,142 +71,205 @@ char payment_reply[] = "we accept card, cash, and sinpe";
 char extra[] = "The extras are:\nmashed potato\ncole slaw\nmashed beans\nsmoked chicken wings\n";
 
 
+// Ending message
+char end[] = "Thank you for contacting again, have a nice rest of the day!";
 
-void get_option(char *option);
-int read_sentence(char message[SIZE]);
-int read_word(char sentence[SIZE], char words[SIZE][SIZE]); 
-int send_reply(char reply[SIZE]);
+
+
+// function prototypes
+void get_option(char *option); //gets user's choice at the option menu
+int read_sentence(char sentence[]); // reads the message in client_msg.txt in to a string
+int reply_sentence(char sentence[], char reply[]); // analyzes the message and searches for a reply if exist
+int read_word(char sentence[], char words[][WORD_SIZE]); // parses the message string into words and store the into a 2d array
+int del_stop_words(char words[][WORD_SIZE], int word_count, char clean_words[][WORD_SIZE]); // deletes meaningless words from the original word array and creates a clean word array
+int load_vocab(node_t **pp_head, char vocfile[10]); //loads vocabularies from file vocab_list.txt into a list
+int find_word_category(char words[][WORD_SIZE], node_t *p_head, int numw, int cats[10], char data[]); //compares the words in the clean word array with words in linked list and returns the categories and a key data
+int word_reply(int cat[10], char data[], char reply []); // finds a reply for the categories and data presented from the funtion find_word_category
+
+int send_reply(char reply[]); //stores a message in output_msg.txt
+
 void get_order();
-int del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SIZE]);//returns the number of words *categorizeds*
-// for reply, put a random num to pick a random answer from a answer pool
-int load_vocab(node_t **pp_head, char vocfile[10]);
-int find_word_category(char words[][SIZE], node_t *p_head, int numw, int cats[10], char data[SIZE]);
-int word_reply(int cat[10], char data[SIZE], char reply [SIZE]);
-int reply_sentence(char sentence[SIZE], char reply[SIZE]);
-void save_to_unknown(char sentence[SIZE]);
+void save_to_unknown(char sentence[]); //saves unknown inputs into unknown.txt
 
 
+
+
+/*******************************Main*****************************************/
 int main(void)
 {
-    char sentence[SIZE];//either sentence or word
-    char words[SIZE][SIZE];
-	char clean_words[SIZE][SIZE];
-	char reply[SIZE];
-    int n, wcount; //count of the number of words stored in words[SIZE][SIZE]
-	char option;
-	char quit;
-	int cats[10];
-	char data[SIZE];
-	int indicator;
-	node_t *p_head = NULL;
-	int word_count;
-    //Maybe include msg count? to know what to do at which time.
-    
-	// delete first message
+    //original message
+	char sentence[SIZE]; 
+	//original word array
+    char words[SIZE][WORD_SIZE]; 
+	//word array after deleting stop words
+	char clean_words[SIZE][WORD_SIZE]; 
+	// str to store reply
+	char reply[SIZE]; 
+	//char to store user's choice
+	char option; 
+	//flag to quit
+	char quit; 
+	//key word from find_word_category
+	char data[WORD_SIZE]; 
+	
+	//array of 10 categories
+	int cats[10]; 
+	// signal of a successful reply
+	int indicator; 
+	//count of the number of words stored in words[SIZE][WORD_SIZE]
+	int word_count; 
+	
+	//head pointer of linked list
+	node_t *p_head = NULL; 
+	
+	/************** Main Logic*****************/
+	
+	// delete first message (usually are greetings)
 	read_sentence(sentence);
 	printf("New message received.\n");
+	
 	do
 	{
-		send_reply(option_menu);
+		//sends the option menu
+		send_reply(option_menu); 
 		printf("Showing options to user.\n");
-		get_option(&option);
+		
+		//gets the user's choice
+		get_option(&option); 
 		printf("Option %c, Selecting answer\n", option);
 		
-		switch(option)
+		//5 posibble options
+		switch(option) 
 		{
-			case 'A': //location of the shop
+			//location of the shop
+			case 'A': 
 			case 'a':
-				strcpy(reply, restaurant_location);
+			
+				//sends link of google maps
+				strcpy(reply, restaurant_location); 
 				strcat(reply,if_help);
 				send_reply(reply);
 				break;
 				
-			case 'B': //Menu of the shop
+			//Menu of the shop
+			case 'B': 
 			case 'b':
-				strcpy(reply, menu); //send link of menu 
+			
+				//sends link of menu 
+				strcpy(reply, menu); 
 				strcat(reply,if_help);
 				send_reply(reply);
 				break;
 				
-			case 'C': // when does shop open and close?
+			// when does shop open and close?
+			case 'C': 
 			case 'c':
-				strcpy(reply, schedule); // send the schedule of restaurant
+			
+				// sends the schedule of restaurant
+				strcpy(reply, schedule); 
 				strcat(reply,if_help);
 				send_reply(reply);
 				break;
 				
-			case 'D': // orders
+			// orders
+			case 'D': 
 			case 'd':
+			
 				get_order();
 				strcpy(reply, order);
 				strcat(reply,if_help);
 				send_reply(reply);
 				break;
-			case 'E': // Further questions (ask our chat bot)
+				
+			// Further questions (ask our chat bot)
+			case 'E': 
 			case 'e':
+			
 				send_reply("Hello, I'm the chat bot, ask your question.");
 				do
 				{
 					indicator = 0;
-					read_sentence(sentence);
-					indicator = reply_sentence(sentence,reply);
+					//first reads senteces
+					read_sentence(sentence); 
+					//try to find a reply for the sentence if exist
+					indicator = reply_sentence(sentence,reply); 
 					
 					if(indicator == 1)
 					{
+						// if the reply existe, "end" the message
 						strcat(reply,"\nMore questions? (y/n)");
-	
 					}
-					else
+					else //if reply for sentence does not exist, parse it to words and search by categories
 					{
-						word_count = read_word(sentence,words);
-						word_count = del_stop_words(words,word_count,clean_words);
-						load_vocab(&p_head,"vocab_words.txt");
-						find_word_category(clean_words, p_head, word_count, cats, data);
-						indicator = word_reply(cats, data,reply);
+						// word parser
+						word_count = read_word(sentence,words); 
+						//delete stop words from original array
+						word_count = del_stop_words(words,word_count,clean_words); 
+						//loads the linked list
+						load_vocab(&p_head,"vocab_words.txt"); 
+						// finds corresponding categories
+						find_word_category(clean_words, p_head, word_count, cats, data); 
+						//finds reply by categories
+						indicator = word_reply(cats, data,reply); 
 						
+						//if found reply successfully "end" the message
 						if(indicator == 1)
 						{
-							strcat(reply,"\nMore questions? (y/n)");
+							strcat(reply,"\nMore questions? (y/n)"); 
 						}
-						else
+						else // if there was no corresponding reply
 						{
+							// sends apology and stores unknown string into unknown.txt
 							strcpy(reply,"unfortunately, we couldn't find any answer to your question, but we will store it for future reference\n\nMore questions? (y/n)");
 							save_to_unknown(sentence);
 						}
 					}
 					
+					//sends the completed reply
 					send_reply(reply);
+					//stores user's choice
 					get_option(&quit);
+					
 					if(quit == 'Y' || quit == 'y')
 					{
 						send_reply("ask another question");
 					}
+					
 				}while(quit == 'y' || quit == 'Y');
+				
 				send_reply("Do you need anything else?(y/n)");
 				break;
 				
 			default:
-				send_reply(error); // if the user did not enter any of the options, tell him.
+				// if the user did not enter any of the options, tell him.
+				send_reply(error);
 				continue;
+				
 		}
 		
 	get_option(&quit);
 		
-	printf("%c",quit);
 	}while(quit == 'y' || quit == 'Y');
 	
-	send_reply(end);
+	//send the ending message when the program ends
+	send_reply(end); 
 
 	return 0;
 }
 
-int read_sentence(char message[SIZE])
+
+
+/**************************************************** Function Definitions***********************************************************/
+
+// reads the message in client_msg.txt in to a string
+int read_sentence(char sentence[])
 {
-    FILE *input;//Jona: put the file inside the function
+    FILE *input;
     char line[SIZE];
-    int i, countl = 0;//helper, count line
-    char *sts;//status: pointer to line string if succesful, else NULL
+    int i, countl = 0; //helper, count line
+    char *sts; //status: pointer to line string if succesful, else NULL
     
+	//first reads the file
     input = fopen("client_msg.txt","r");
     
     if (input == NULL)
@@ -203,9 +280,12 @@ int read_sentence(char message[SIZE])
     
     do
     {
-    	sts = fgets(line, SIZE, input);//extract the whole sentence out of the file
-    }while(sts == NULL);//keep scanning until there is a message
-    printf("read client_message file\n");
+		//extract the whole sentence out of the file
+    	sts = fgets(line, SIZE, input);
+		
+    }while(sts == NULL);  //keep scanning until there is a message
+	
+    printf("Received client's message\n");
 	
     while (sts != NULL)
     {
@@ -218,32 +298,38 @@ int read_sentence(char message[SIZE])
        //first line will be stored within the message string
        if (countl == 1)
        {
-           strcpy(message, line);
+           strcpy(sentence, line);
        }
        else//else, concatenate to message
        {
-            strcat(message, line);
+            strcat(sentence, line);
        }
        
        sts = fgets(line,SIZE,input);
     }
     
 	// after all that, turn the string to lower case to make it easy to operate
-	for(i = 0; i < strlen(message); i++)
+	for(i = 0; i < strlen(sentence); i++)
 	{
-		if(message[i] > 64 && message[i] < 91)
+		if(sentence[i] > 64 && sentence[i] < 91)
 		{
-			message[i] = message[i] + 32;
+			sentence[i] = sentence[i] + 32;
 		}
 	}
+	
     //Remember to delete the input from the file after it was read! 
     input = fopen("client_msg.txt","w");
     fclose(input);
+	
     return 0;
 }
 
-int read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from string lecture modified by William.
+
+
+// parses the message string into words and store the into a 2d array
+int read_word(char sentence[], char words[][WORD_SIZE]) // function from string lecture
 {
+	
 	char typed_letter;
 	int is_space_or_punctuation;
 	int in_word;
@@ -310,11 +396,14 @@ int read_word(char sentence[SIZE], char words[SIZE][SIZE]) // function from stri
 			}
 		}	
 	}
-    //Jonathan: it returns the number of words found
+	
+    //it returns the number of words found
     return dst_word_idx+1;
 }
 
-//Get order (this should be a category) function to store info in a CSV file (William)
+
+
+//asks series of questions to get an order from user
 void get_order()
 {
 	FILE *input;
@@ -326,7 +415,8 @@ void get_order()
 	
 	for(i = 1; i < question_counter; i++)
 	{
-		output = fopen("output_msg.txt","w"); //everytime we open the file with writing mode, it erases what was inside
+		//everytime we open the file with writing mode, it erases what was inside
+		output = fopen("output_msg.txt","w"); 
 		
 		switch(i) //ask questions
 		{
@@ -344,47 +434,58 @@ void get_order()
 				break;
 		}
 		
-		fclose(output);//close file
+		//close file
+		fclose(output);
 		
-		//wait until the client replies (maybe with sts)
-		read_sentence(info);//reads the client's response and stores it in the string info
+		//reads the client's response and stores it in the string info
+		read_sentence(info);
 		
 		//opens csv file and stores the information in it
 		order = fopen("order.csv","a");
 		fprintf(order,"%s,",info);
 		
+		//close the csv file
 		fclose(order);
 		
 	}
 
-	fprintf(order,"\n");// put a new line so that every order will be separated
+	// put a new line so that every order will be separated
+	fprintf(order,"\n");
 	
 }
 
 
-// gets the option that the user wants
+
+
+//gets user's choice at the option menu
 void get_option(char *option)
 {
 	FILE *input;
 	
+	//open file
 	input = fopen("client_msg.txt","r");
 	
-	// wait till user writes(with sts)
+	// wait until there is a message
 	do
 	{
-		*option = getc(input);// gets the character from the file
+		// gets the character from the file
+		*option = getc(input);
 		
-	}while(*option == EOF || *option == ' '); 
+	}while(*option == EOF || *option == ' ' || *option == '\n'); 
 	
+	//closes file
 	fclose(input);
 	
+	//delete what was in the file
 	input = fopen("client_msg.txt","w");
-    fclose(input);//deletes what was in the file
+    fclose(input);
 }
 
 
-//Sends the message so the python script can send it (we originally called it store_reply)
-int send_reply(char reply[SIZE])
+
+
+//stores a message in output_msg.txt
+int send_reply(char reply[])
 {
     FILE *output;
 	char state;
@@ -417,33 +518,46 @@ int send_reply(char reply[SIZE])
 }
 
 
-int del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[SIZE][SIZE]) // Minoli
+
+// deletes meaningless words from the original word array and creates a clean word array
+int del_stop_words(char words[][WORD_SIZE], int num_words, char clean_words[][WORD_SIZE]) // Minoli
 {
+	// a list of 55 stop words that we found on the internet
     char stop[55][SIZE] = {"the", "about", "once", "during", "out", "very", "having", "with", "they", "while", "on", "he", "hers", "she", "own", "an", "have", "nor" , "not", "this", "both", "because", "too", "only", "myself", "me", "it", "here", "than", "whom", "who", "if", "my", "how", "those", "i", "can", "did", "a", "but", "by", "off", "does", "on", "we", "so", "our", "now", "before", "can", "more", "ourselves", "above", "up", "all"};
     int x,y;
-	int not_stop = 0;
+	int is_stop = 0;
 	int clean_idx = 0;
 	
+	//goes through every word in the original list
 	for(x = 0;x < num_words; x++)
 	{
-		not_stop = 0;
+		is_stop = 0;
+		
+		//goes through every word in the stop words' list
 		for(y = 0; y < 55; y++)
 		{
+			//if the word is a stop word do nothing
 			if( strcmp( words[x], stop[y]) == 0 )
 			{
-				not_stop = 1;
+				is_stop = 1;
 			}
 		}
-		if( not_stop == 0)
+		
+		//if the word is no a stop word, store it into the clean word array
+		if( is_stop == 0)
 		{
 			strcpy(clean_words[clean_idx],words[x]);
 			clean_idx++;
 		}
+		
 	}
+	
 	return (clean_idx + 1);
 }
 
 
+
+//loads vocabularies from file vocab_list.txt into a list
 int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name of the file
 {
     FILE *vocab;
@@ -453,6 +567,7 @@ int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name o
 	int i;
     node_t *p_node; //helper node
     
+	//opens vocab.txt
     vocab = fopen(vocfile,"r");
     
     if (vocab == NULL)
@@ -477,7 +592,7 @@ int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name o
         }
         else if (letter == ',')
         {
-             //setup some space
+            //setup some space
 			p_node = malloc(sizeof(node_t));
 			//check for failure
 			if (p_node == NULL)
@@ -514,10 +629,17 @@ int load_vocab(node_t **pp_head, char vocfile[20])//string containing the name o
     return 0;
 }
 
-int find_word_category(char words[SIZE][SIZE], node_t *p_head, int numw, int cats[10], char data[SIZE])//numw = number of words in the array (get it from read_words function)
+
+
+
+//compares the words in the clean word array with words in linked list and returns the categories and a key data
+int find_word_category(char words[][WORD_SIZE], node_t *p_head, int numw, int cats[10], char data[])//numw = number of words in the array (get it from read_words function)
 {
 	node_t *p_node; 
 	int i;
+	categories greeting = greeting;
+	categories food = food;
+	categories special = special;
 	
 	//set all the slots to zero at the beginning of the categorization.
 	for(i = 0; i < 10; i++)
@@ -539,17 +661,18 @@ int find_word_category(char words[SIZE][SIZE], node_t *p_head, int numw, int cat
 				printf("category found.\n");
 				//include here the logic for the data to store in the data array
 				
-				//if the topic is food, store food
-				if(p_node->topic == 0)
+				//if the topic is greeting, store greeting
+				if(p_node->topic == greeting)
 				{
 					strcpy(data, p_node->word);
 				}
-				else if (p_node->topic == 2)
+				//if the topic is food, store food
+				else if (p_node->topic == food)
 				{
 					strcpy(data, p_node->word);
 				}
 				//if the topic is special, store special (types of food diets like diabetic, vegan, vegetarian)
-				else if (p_node->topic == 6)
+				else if (p_node->topic == special)
 				{
 					strcpy(data, p_node->word);
 				}
@@ -566,14 +689,31 @@ int find_word_category(char words[SIZE][SIZE], node_t *p_head, int numw, int cat
 	return(0);
 }
 
-int word_reply(int cat[10], char data[SIZE], char reply[SIZE])
+
+
+
+// finds a reply for the categories and data presented from the funtion find_word_category
+int word_reply(int cat[10], char data[], char reply[])
 {
 	int i,j;
 	int if_greet = 0;
 	int food_idx = -1;
 	int found = 0;
 	
-	if(cat[0] == 1)
+	//initialize all enum to make logic clear
+	categories greeting = greeting;
+	categories gratitude = gratitude;
+	categories food = food;
+	categories drink = drink;
+	categories dessert = dessert;
+	categories spicy = spicy;
+	categories special = special;
+	categories size = size;
+	categories location = location;
+	categories payment = payment;
+	
+	//if there was a greeting, send a greeting
+	if(cat[greeting] == 1)
 	{
 		strcpy(reply,greet_reply);
 		if_greet = 1;
@@ -581,7 +721,8 @@ int word_reply(int cat[10], char data[SIZE], char reply[SIZE])
 	
 	}
 	
-	if(cat[2] == 1)
+	//make sure if the user is asking for a dish or extras
+	if(cat[food] == 1)
 	{
 		for(i = 0; i < 7; i++)
 		{
@@ -596,6 +737,7 @@ int word_reply(int cat[10], char data[SIZE], char reply[SIZE])
 		}
 	}
 	
+	//if the user is asking for extras, send him the extras
 	if (food_idx == -1 && (strcmp(data, "extra") == 0 || strcmp(data, "extras") == 0 ))
 	{
 
@@ -604,7 +746,8 @@ int word_reply(int cat[10], char data[SIZE], char reply[SIZE])
 
 	}
 
-	if( cat[2] == 1 && cat[9] == 1)
+	// if there is a food and payment category, the user most likely is asking  for the price
+	if( cat[food] == 1 && cat[payment] == 1)
 	{
 		if(if_greet == 0)
 		{
@@ -621,7 +764,8 @@ int word_reply(int cat[10], char data[SIZE], char reply[SIZE])
 		found = 1;
 		
 	}
-	else if( cat[2] == 1 && cat[5] == 1)
+	//if there is a food and spicy category, the user is asking if a dish is spicy
+	else if( cat[food] == 1 && cat[spicy] == 1)
 	{
 		if(if_greet == 0)
 		{
@@ -642,7 +786,8 @@ int word_reply(int cat[10], char data[SIZE], char reply[SIZE])
 		}
 		found = 1;
 	}
-	else if( cat[2] == 1 && cat[7] == 1)
+	//if there is a food and size category, the user is asking about the size of a dish
+	else if( cat[food] == 1 && cat[size] == 1)
 	{
 		if(if_greet == 0)
 		{
@@ -657,33 +802,41 @@ int word_reply(int cat[10], char data[SIZE], char reply[SIZE])
 		strcat(reply, " people.");
 		found = 1;
 	}
-	else if (cat[9] == 1)
+	//user is aking about payment method
+	else if (cat[payment] == 1)
 	{
 		strcpy(reply,payment_reply);
 		found = 1;
 	}
-	else if (cat[3] == 1)
+	//user is aking about drinks
+	else if (cat[drink] == 1)
 	{
 		strcpy(reply,drink_reply);
 		found = 1;
 	}
-	else if (cat[4] == 1)
+	//user is aking about desserts
+	else if (cat[dessert] == 1)
 	{
 		strcpy(reply,dessert_reply);
 		found = 1;
 	}
-	else if (cat[8] == 1)
+	//user is aking about delivery locations
+	else if (cat[location] == 1)
 	{
 		strcpy(reply,delivery_reply);
 		found = 1;
 	}
-	else if (cat[1] == 1)
+	//user is thanking us
+	else if (cat[gratitude] == 1)
 	{
 		strcpy(reply,gratitude_reply);
 		found = 1;
 	}
-	else if (cat[6] == 1)
+	//user is commenting special cases
+	//for each special case, we need a special respond to it
+	else if (cat[special] == 1)
 	{
+		
 		if(strcmp(data,"diabetes") == 0 || strcmp(data,"diabetic") == 0 || strcmp(data,"hypertension") == 0 || strcmp(data,"hypertensive") || strcmp(data,"allergy") || strcmp(data,"allergies") || strcmp(data,"allergic"))
 		{
 			strcpy(reply,"Make sure to specify that you have a special condition when you order so we can adapt our menu to your needs.");
@@ -704,38 +857,58 @@ int word_reply(int cat[10], char data[SIZE], char reply[SIZE])
 			strcpy(reply,"The only products that contain lactose are: quesillo and mashed potato");
 			found = 1;
 		}
+		
 	}
 	
+	//if the function was able to find a reply, found will be 1 and will be returned
+	//but if the function was not able to find any reply, returns 0
 	return found;
 }
 
-int reply_sentence(char sentence[SIZE], char reply[SIZE])
+
+
+
+// analyzes the message and searches for a reply if exist
+int reply_sentence(char sentence[], char reply[])
 {	
+	//for each specific sentence, there is a specific answer to it
 	if (strcmp(sentence,"what do you recommend?") == 0 || strcmp(sentence, "do you have any specials?") == 0)
 	{
+		
 		strcpy(reply,"Try out the pulled pork kg. mmm is delicious, I tried it once.");
 		return(1);
+		
 	}
+	
 	else if (strcmp(sentence,"do you have any free tables?") == 0|| strcmp(sentence, "i'd like to book a table, please") == 0|| strcmp(sentence, "i'd like to make a reservation")== 0)
 	{
+		
 		strcpy(reply,"Due to the Covid pandemic, we are closed. However, we do have express service!");
 		return(1);
+		
 	}
 	else if (strcmp(sentence,"how long does it take for the food to be ready?")== 0)
 	{
+		
 		strcpy(reply,"It takes about 40 minutes to be ready plus the time we take to get to you.");
 		return(1);
+		
 	}
 	
 	return(0);
 }
 
-void save_to_unknown(char sentence[SIZE])
+
+
+//saves unknown inputs into unknown.txt
+void save_to_unknown(char sentence[])
 {
 	FILE *fp;
 	
+	//opens file and store the unkown message in it
 	fp = fopen("unknown.txt","a");
 	fprintf(fp,"%s\n",sentence);
 	
+	//closes file
 	fclose(fp);
 }
