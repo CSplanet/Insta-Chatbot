@@ -53,7 +53,9 @@ piquant,5
 picante,5
 pepper,5
 habanero,5
+diabetes,6
 diabetic,6
+hypertension,6
 hypertensive,6
 allergy,6
 allergies,6
