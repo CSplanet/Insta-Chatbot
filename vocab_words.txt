@@ -54,8 +54,11 @@ picante,5
 pepper,5
 habanero,5
 diabetic,6
+hypertensive,6
+allergy,6
+allergies,6
+allergic,6
 vegetarian,6
-veggie,6
 vegan,6
 gluten,6
 celiac,6
@@ -63,7 +66,6 @@ milk,6
 lactose,6
 cheese,6
 dairy,6
-diet,6
 size,7
 big,7
 large,7
