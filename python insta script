@@ -14,7 +14,8 @@ from selenium.webdriver.common.keys import Keys #A lot of Keys in the keyboard
 
 #Create a chrome object.
 #webdriver.Chrome(executable_path='C:/path/to/chromedriver.exe')  #For a chromedriver that's not in the same file.
- 
+
+#run the exe (c program)
 class bot:
     def __init__(self, username, password):#it initializes everything inside of it
         self.username = username
@@ -23,8 +24,8 @@ class bot:
         self.bot = webdriver.Chrome()#driver
         #functions
         self.login()
-        self.read()
-        self.write()
+        #self.read()
+        #self.write()
         
     def login(self):#------------------Instructions to login and access to the Instagram DMs-------------
         self.bot.get(self.base_url) #driver.get("url") will navigate to a page given by the URL
@@ -129,14 +130,27 @@ class bot:
         # send message
         send.send_keys(Keys.RETURN)
         time.sleep(1)
-        
-        self.bot.quit()
+
+        #Click direct button
+        self.bot.find_element_by_xpath(
+            '//a[@class="xWeGp"]').click()  # Xpath fixed
+        time.sleep(3)
+
 
 #see if message in output is
 #""
+project = bot('compsci.exe', 'finalproject')
+project.read()
+project.write()
+
+count = 0
+
 while project.message != "Thank you for contacting again, have a nice rest of the day!":
-    project = bot('compsci.exe', 'finalproject')
+    project.read()
+    project.write()
     count += 1
     time.sleep(3)
+
+print("Bot finished conversation.")
     
 #Problem: include the messages from people that are not following the account
