@@ -68,6 +68,7 @@ void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SI
 int load_vocab(node_t **pp_head, char vocfile[10]);
 int find_word_category(char words[10][20], node_t *p_head, int numw, int cats[10], char data[SIZE]);
 void word_reply(int cat[10], char data[SIZE]);
+int reply_sentence(char sentence[SIZE]);
 
 int main(void)
 {
@@ -633,4 +634,21 @@ void word_reply(int cat[10], char data[SIZE])
 		if(strcmp(data,""))
 	}*/
 	
+}
+
+int reply_sentence(char sentence[SIZE])
+{	
+	if (strcmp(sentence,"what do you recommend?") || strcmp(sentence, "do you have any specials?"))
+	{
+		send_reply("Try out the pulled pork kg. mmm is delicious, I tried it once.");
+	}
+	else if (strcmp(sentence,"do you have any free tables?") || strcmp(sentence, "i'd like to book a table, please") || strcmp(sentence, "i'd like to make a reservation"))
+	{
+		send_reply("Due to the Covid pandemic, we are closed. However, we do have express service!");
+	}
+	else if (strcmp(sentence,"how long does it take for the food to be ready?"))
+	{
+		send_reply("It takes about 40 minutes to be ready plus the time we take to get to you.");
+	}
+	//Add more sample sentences in the future
 }
