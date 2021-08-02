@@ -546,7 +546,7 @@ void word_reply(int cat[10], char data[SIZE])
 		}
 	}
 	
-	if(food_idx == -1)
+	if (food_idx == -1 && (strcmp(data, "extra") == 0 || strcmp(data, "extras") == 0 ))
 	{
 
 		send_reply(extra);
@@ -629,10 +629,25 @@ void word_reply(int cat[10], char data[SIZE])
 	{
 		send_reply(gratitude_reply);
 	}
-	/*else if (cat[6] == 1)
+	else if (cat[6] == 1)
 	{
-		if(strcmp(data,""))
-	}*/
+		if(strcmp(data,"diabetes") == 0 || strcmp(data,"diabetic") == 0 || strcmp(data,"hypertension") == 0 || strcmp(data,"hypertensive") || strcmp(data,"allergy") || strcmp(data,"allergies") || strcmp(data,"allergic"))
+		{
+			send_reply("Make sure to specify that you have a special condition when you order so we can adapt our menu to your needs.");
+		}
+		else if (strcmp(data,"celiac") == 0 || strcmp(data,"gluten") == 0)
+		{
+			send_reply("We offer gluten free bread as an alternative to our brioche bread.\nRegular tortillas can also be replaced with corn tortillas.");
+		}
+		else if (strcmp(data,"vegetarian") == 0 || strcmp(data,"vegan") == 0)
+		{
+			send_reply("Options for vegetarians/vegans:\nRice and beans\nCole Slaw\nMashed beans\nMashed potato (not vegan)\nplantain chips\nvegetable escabeche\nTortillas (fried or not)\nPickled Onions with/without Panamanian chili\n");
+		}
+		else if (strcmp(data,"milk") == 0 || strcmp(data,"cheese") == 0 || strcmp(data,"cheese") == 0 || strcmp(data,"lactose") == 0 || strcmp(data,"dairy") == 0)
+		{
+			send_reply("The only products that contain lactose are: quesillo and mashed potato");
+		}
+	}
 	
 }
 
