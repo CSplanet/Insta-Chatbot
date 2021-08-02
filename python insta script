@@ -1,3 +1,4 @@
+#Idea from this page, edited by Jonathan Canossa.
 #https://www.geeksforgeeks.org/automate-instagram-messages-using-python/
 #Other useful links:
 #https://selenium-python.readthedocs.io/getting-started.html#simple-usage
@@ -106,6 +107,12 @@ class bot:
             output_msg.seek(0) #set reading back at the top of the text file.
             reply = output_msg.read()
         
+        output_msg.close()
+        
+        #delete anything in the output file
+        output_msg = open("output_msg.txt","w")
+        output_msg.close()
+        
         #Nota
         #Puede que lea mas rapido de lo que el mensaje dura en escribirse por completo
         #Por lo tanto se deberia volver a guardar el reply despues de un sleep.!!!!!!
@@ -125,9 +132,9 @@ class bot:
         
         self.bot.quit()
 
-count = 0
-
-while count < 3:
+#see if message in output is
+#""
+while project.message != "Thank you for contacting again, have a nice rest of the day!":
     project = bot('compsci.exe', 'finalproject')
     count += 1
     time.sleep(3)
