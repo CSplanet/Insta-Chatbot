@@ -14,7 +14,7 @@ typedef enum
     spicy,
     special,//diabetic, celiaco, vegetarian, etc
     size,
-    delivery,
+    location,
     payment
 } categories;
 
@@ -27,16 +27,34 @@ typedef struct node_s
 } node_t;
 
 
-// replies
+//constant replies
 char if_help[]= "Did the program help?(y/n)";
-char option_menu[] = "Hello, thank you for contacting us, what can I help:\nA) show location of the restaurant\nB) show menu of the restaurant\nC) schedule\nD) orders\nE) further questions(answered by our chat bot). ";
+char option_menu[] = "Hello, thank you for contacti	ng us, what can I help:\nA) show location of the restaurant\nB) show menu of the restaurant\nC) schedule\nD) delivery\nE) further questions(answered by our chat bot). ";
 char restaurant_location[]= "we're in Escazu."; //change to waze link
 char menu[] = "https://docs.google.com/document/d/1MGEFnL7qFkvQbN8hntoHJioYiGv5yqUELz-rTaSoq0U/edit?usp=sharing"; //show menu link;
 char schedule[] = ""; //show schedule;
 char error[] = "please enter one of the options.";
 char order[] = "Got your order! we will call you when we send it.";
 char end[] = "Thank you for contacting again, have a nice rest of the day!";
-
+char rest_menu[][SIZE][SIZE] = {{"pulled","pork","sanguches","x"},
+							{"taquiza","cochinita","pibil","x"},
+							{"huevo","dinosaurio","x","x"},
+							{"surtido","cantina","x","x"},
+							{"beans","x","x","x"},
+							{"chifri","x","x","x"},
+							{"costilla", "completa","cerdo","ahumada"}};
+							
+char complete_menu[][SIZE]= {"pulled pork sanguches","taquiza de cochinita pibil","huevo de dinosaurio","surtido de cantina","rice and beans","chifri rice","costilla completa de cerdo ahumada"};
+int spice[]      = {0,0,0,1,1,1,0};
+char food_size[]  = "4744435";
+char food_price[][SIZE] = {"8000","14000","8000","8000","8000","6000","10000"};
+char greet_reply[SIZE] = "Hello,";
+char gratitude_reply[SIZE] = "you're welcome"; 
+char drink_reply[]= "we don't provide drinks";
+char dessert_reply[] = "we don't provide desserts";
+char delivery_reply[] = "we only deliver near san jose";
+char payment_reply[] = "we accept card, cash, and sinpe";
+char extra[] = "The extras are:\nmashed potato\ncole slaw\nmashed beans\nsmoked chicken wings\n";
 
 
 
@@ -49,7 +67,7 @@ void del_stop_words(char words[SIZE][SIZE], int num_words, char clean_words[][SI
 // for reply, put a random num to pick a random answer from a answer pool
 int load_vocab(node_t **pp_head, char vocfile[10]);
 int find_word_category(char words[10][20], node_t *p_head, int numw, int cats[10], char data[SIZE]);
-
+void word_reply(int cat[10], char data[SIZE]);
 
 int main(void)
 {
@@ -104,7 +122,6 @@ int main(void)
 			
 				break;
 				
-				
 			default:
 				send_reply(error); // if the user did not enter any of the options, tell him.
 				continue;
@@ -113,6 +130,8 @@ int main(void)
 		send_reply(if_help);
 		get_option(&quit);
 	}while(quit == 'n');
+	
+	send_reply(end);
 
 	return 0;
 }
@@ -283,10 +302,11 @@ void get_order()
 		//opens csv file and stores the information in it
 		order = fopen("order.csv","a");
 		fprintf(order,"%s,",info);
+		
 		fclose(order);
 		
 	}
-	
+
 	fprintf(order,"\n");// put a new line so that every order will be separated
 	
 }
@@ -304,13 +324,14 @@ void get_option(char *option)
 	{
 		*option = getc(input);// gets the character from the file
 		
-	}while(*option == EOF || *option == " "); 
+	}while(*option == EOF || *option == ' '); 
 	
 	fclose(input);
 	
 	input = fopen("client_msg.txt","w");
     fclose(input);//deletes what was in the file
 }
+
 //find_sentence_category(string); (categorization)
 //find_word_category(word);--> helpers are the delete stop words, find root, read word.
 
@@ -322,14 +343,17 @@ int send_reply(char reply[SIZE])
 {
     FILE *output;
 	char state;
+	int size;
 	output = fopen("output_msg.txt","r");
 	
 	//wait until file is empty
 	do
 	{
-		state = getc(output);
-		
-	}while(state != EOF);
+		fseek(output, 0, SEEK_END);
+		size = ftell(output);
+	
+	}while(size !=0);
+	
 	fclose(output);
 	
     output = fopen("output_msg.txt","w");
@@ -480,11 +504,7 @@ int find_word_category(char words[SIZE][SIZE], node_t *p_head, int numw, int cat
 				{
 					strcpy(data, p_node->word);
 				}
-				//payment method to answer a yes or no (credit, cash, sinpe)
-				else if (p_node->topic == 9)
-				{
-					strcpy(data, p_node->word);
-				}
+				
 			}
 		}
 		
@@ -495,4 +515,122 @@ int find_word_category(char words[SIZE][SIZE], node_t *p_head, int numw, int cat
 		
 	}
 	return(0);
+}
+
+void word_reply(int cat[10], char data[SIZE])
+{
+	int i,j;
+	int if_greet;
+	int food_idx = -1;
+	char str[SIZE] ;
+	
+	if(cat[0] == 1)
+	{
+		strcpy(str,greet_reply);
+		if_greet = 1;
+	}
+	
+	if(cat[2] == 1)
+	{
+		for(i = 0; i < 7; i++)
+		{
+			for(j = 0; j < 4; j++)
+			{
+				if(strcmp(data,rest_menu[i][j]) == 0 )
+				{
+					food_idx = i;
+					break;
+				}
+			}
+		}
+	}
+	
+	if(food_idx == -1)
+	{
+
+		send_reply(extra);
+
+	}
+
+	if( cat[2] == 1 && cat[9] == 1)
+	{
+		if(if_greet == 0)
+		{
+			strcpy(str,"The price of ");
+		}
+		else
+		{
+			strcat(str," the price of ");
+		}
+		strcat(str, complete_menu[food_idx]);
+		strcat(str," is ");
+		strcat(str, food_price[food_idx]);
+		
+		printf("%s",str);
+		
+		send_reply(str);
+		
+		
+	}
+	else if( cat[2] == 1 && cat[5] == 1)
+	{
+		if(if_greet == 0)
+		{
+			strcpy(str,complete_menu[food_idx]);
+		}
+		else
+		{
+			strcat(str,complete_menu[food_idx]);
+		}
+		strcat(str," is ");
+		if(spice[food_idx] == 1)
+		{
+			strcat(str, "spicy");
+		}
+		else
+		{
+			strcat(str, "not spicy");
+		}
+		send_reply(str);
+	}
+	else if( cat[2] == 1 && cat[7] == 1)
+	{
+		if(if_greet == 0)
+		{
+			strcpy(str,complete_menu[food_idx]);
+		}
+		else
+		{
+			strcat(str,complete_menu[food_idx]);
+		}
+		strcat(str," is for ");
+		strcat(str, &food_size[food_idx]);
+		strcat(str, " people.");
+		send_reply(str);
+	}
+	else if (cat[9] == 1)
+	{
+		send_reply(payment_reply);
+	}
+	else if (cat[3] == 1)
+	{
+		send_reply(drink_reply);
+	}
+	else if (cat[4] == 1)
+	{
+		send_reply(dessert_reply);
+	}
+	else if (cat[8] == 1)
+	{
+		send_reply(delivery_reply);
+	}
+	else if (cat[1] == 1)
+	{
+		send_reply(gratitude_reply);
+	}
+	/*else if (cat[6] == 1)
+	{
+		if(strcmp(data,""))
+	}*/
+	
 }
