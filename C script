@@ -494,7 +494,7 @@ int send_reply(char reply[])
 
 
 // deletes meaningless words from the original word array and creates a clean word array
-int del_stop_words(char words[][WORD_SIZE], int num_words, char clean_words[][WORD_SIZE]) // Minoli
+int del_stop_words(char words[][WORD_SIZE], int num_words, char clean_words[][WORD_SIZE]) 
 {
 	// a list of 55 stop words that we found on the internet
     char stop[55][SIZE] = {"the", "about", "once", "during", "out", "very", "having", "with", "they", "while", "on", "he", "hers", "she", "own", "an", "have", "nor" , "not", "this", "both", "because", "too", "only", "myself", "me", "it", "here", "than", "whom", "who", "if", "my", "how", "those", "i", "can", "did", "a", "but", "by", "off", "does", "on", "we", "so", "our", "now", "before", "can", "more", "ourselves", "above", "up", "all"};
