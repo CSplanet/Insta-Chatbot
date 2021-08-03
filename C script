@@ -184,13 +184,15 @@ int main(void)
 			// Further questions (ask our chat bot)
 			case 'E': 
 			case 'e':
-			
+				//loads the linked list
+				load_vocab(&p_head,"vocab_words.txt"); 
 				send_reply("Hello, I'm the chat bot, ask your question.");
 				do
 				{
 					indicator = 0;
 					//first reads senteces
 					read_sentence(sentence); 
+					printf("%s\n",sentence);
 					//try to find a reply for the sentence if exist
 					indicator = reply_sentence(sentence,reply); 
 					
@@ -204,11 +206,21 @@ int main(void)
 						// word parser
 						word_count = read_word(sentence,words); 
 						//delete stop words from original array
+						for(int i = 0; i<word_count;i++)
+							printf("%s ",words[i]);
+						printf("\n");
+						
 						word_count = del_stop_words(words,word_count,clean_words); 
-						//loads the linked list
-						load_vocab(&p_head,"vocab_words.txt"); 
+						
+						for(int i = 0; i<word_count;i++)
+							printf("%s ",clean_words[i]);
+						printf("\n");
+						
 						// finds corresponding categories
 						find_word_category(clean_words, p_head, word_count, cats, data); 
+						printf("the data : %s\n", data);
+						for(int i = 0; i<10;i++)
+							printf("%d ",cats[i]);
 						//finds reply by categories
 						indicator = word_reply(cats, data,reply); 
 						
@@ -327,78 +339,36 @@ int read_sentence(char sentence[])
 
 
 // parses the message string into words and store the into a 2d array
-int read_word(char sentence[], char words[][WORD_SIZE]) // function from string lecture
+int read_word(char sentence[], char words[][WORD_SIZE])
 {
+    int i,j = 0, next_idx = 0;
+	char last_l;
 	
-	char typed_letter;
-	int is_space_or_punctuation;
-	int in_word;
-	int dst_letter_idx;
-	int dst_word_idx;
-	int i;
-	
-	in_word = 0;
-	dst_word_idx = 0;
-	dst_letter_idx = 0;
-    
-	for (i = 0; i < strlen(sentence); i++)
-	{
-		/* Get a letter */
-		typed_letter = sentence[i];
-		
-		/* Check if it is a space or punctuation */
-		is_space_or_punctuation = (typed_letter == ' ' || typed_letter == ',' || typed_letter == '.' || typed_letter == '\n' || typed_letter == '!' || typed_letter == '?');
-		
-		if (!in_word)
+ 
+    for(i=0;i<=(strlen(sentence));i++)	
+    {
+		if (i >= 1)
 		{
-			/* We are searching for the word beginning */
-			if (!is_space_or_punctuation)
-			{
-				/* Found the beginning of a word */
-				/* Copy the letter */
-				words[dst_word_idx][dst_letter_idx] = typed_letter;
-				dst_letter_idx++;
-				
-				in_word = 1;
-			}
+			//collect last letter
+			last_l = sentence[i-1];
 		}
-		else
-		{
-			/* We are in the middle of a word */
-			
-			if (!is_space_or_punctuation)
-			{
-				/* Copy the letter, but only if it fits */
-				if (dst_letter_idx < (SIZE-1) )
-				{
-					words[dst_word_idx][dst_letter_idx] = typed_letter;
-					dst_letter_idx++;
-				}
-			}
-			else
-			{
-				/* This is the end of the word */
-				
-				/* Terminate the string for the current word */
-				words[dst_word_idx][dst_letter_idx] = '\0';
-				
-				/* Move to the next word index */
-				dst_word_idx++;
-				dst_letter_idx = 0;
-				if (dst_word_idx == SIZE)
-				{
-					/* No space for more words */
-					break;
-				}
-				
-				/* Start search mode */
-				in_word = 0;
-			}
-		}	
-	}
+		
+        // if last char was letter and current is something else than a letter
+        if((last_l >= 97 && last_l <= 122) && sentence[i]==' '|| sentence[i]=='\0' || sentence[i]==',' || sentence[i]=='.' || sentence[i]=='!' || sentence[i]=='?')
+        {
+            words[next_idx][j]='\0';
+            next_idx++;  //for next word
+            j=0;    //for next word, init index to 0
+        }
+        else if (sentence[i] >= 97 && sentence[i] <= 122)
+        {
+            words[next_idx][j] = sentence[i];
+            j++;
+        }
+    }
 	
     //it returns the number of words found
-    return dst_word_idx+1;
+    return next_idx;
 }
 
 
@@ -448,9 +418,13 @@ void get_order()
 		fclose(order);
 		
 	}
-
+	
+	order = fopen("order.csv","a");
 	// put a new line so that every order will be separated
 	fprintf(order,"\n");
+	
+	//close the csv file
+		fclose(order);
 	
 }
 
@@ -637,9 +611,7 @@ int find_word_category(char words[][WORD_SIZE], node_t *p_head, int numw, int ca
 {
 	node_t *p_node; 
 	int i;
-	categories greeting = greeting;
-	categories food = food;
-	categories special = special;
+
 	
 	//set all the slots to zero at the beginning of the categorization.
 	for(i = 0; i < 10; i++)
@@ -700,17 +672,6 @@ int word_reply(int cat[10], char data[], char reply[])
 	int food_idx = -1;
 	int found = 0;
 	
-	//initialize all enum to make logic clear
-	categories greeting = greeting;
-	categories gratitude = gratitude;
-	categories food = food;
-	categories drink = drink;
-	categories dessert = dessert;
-	categories spicy = spicy;
-	categories special = special;
-	categories size = size;
-	categories location = location;
-	categories payment = payment;
 	
 	//if there was a greeting, send a greeting
 	if(cat[greeting] == 1)
@@ -837,7 +798,7 @@ int word_reply(int cat[10], char data[], char reply[])
 	else if (cat[special] == 1)
 	{
 		
-		if(strcmp(data,"diabetes") == 0 || strcmp(data,"diabetic") == 0 || strcmp(data,"hypertension") == 0 || strcmp(data,"hypertensive") || strcmp(data,"allergy") || strcmp(data,"allergies") || strcmp(data,"allergic"))
+		if(strcmp(data,"diabetes") == 0 || strcmp(data,"diabetic") == 0 || strcmp(data,"hypertension") == 0 || strcmp(data,"hypertensive") == 0|| strcmp(data,"allergy") == 0|| strcmp(data,"allergies") == 0|| strcmp(data,"allergic")== 0)
 		{
 			strcpy(reply,"Make sure to specify that you have a special condition when you order so we can adapt our menu to your needs.");
 			found = 1;
